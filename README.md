@@ -41,13 +41,3 @@ There are three types of entities:
 > Given that the `[navigation]` is `[closed]`<br/>
 > When the `[user]` `[taps]` or `[clicks]` the `[hamburger icon]`<br/>
 > Then the `[navigation]` is `[opening]`
-
-### Token Replacement
-
-Mustache notation is used to allow a state to be identified dynamically at runtime. This is useful in cases such as the following where the changing state of one subject may affect the state of another subject.
-
-> Given that the `[user dropdown]` is `[closed]`<br/>
-> When the `[user]` `[touches]` the `[user icon]`<br/>
-> Then the `{{active dropdown}}` is `[closing]`<br/>
-> And the `[user dropdown]` is `[opening]`<br/>
-> And the `[active dropdown]` is the `[user dropdown]`
