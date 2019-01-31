@@ -32,9 +32,9 @@ There are three types of entities:
 
 ### Abstract
 
-> Given that the `[Subject A]` is `[State A]`<br/>
-> When the user `[Event A]` or `[Event B]` the `[Subject B]`<br/>
-> Then the `[Subject A]` is `[State B]`
+> Given that the `[Subject]` is `[State A]`<br/>
+> When the `[Event]`<br/>
+> Then the `[Subject]` is `[State B]`
 
 ### Concrete
 
@@ -42,20 +42,12 @@ There are three types of entities:
 > When the `[user]` `[taps]` or `[clicks]` the `[Hamburger Icon]`<br/>
 > Then the `[Navigation]` is `[opening]`
 
-...and another...
-
-> Given that the `[Navigation]` is `[opening]`<br/>
-> When the `[Navigation opening transition ends]`<br/>
-> Then the `[Navigation]` is `[open]`
-
 ### Token Replacement
 
-In the following example, the state of `active dropdown` is used to keep track of one of several instances of the same type of component, of which `User dropdown` is one.
+Mustache notation is used to allow a state to be identified dynamically at runtime. This is useful in cases such as the following where the changing state of one subject may affect the state of another subject.
 
 > Given that the `[User dropdown]` is `[closed]`<br/>
 > When the `[user]` `[touches]` the `[User Icon]`<br/>
 > Then the `{{active dropdown}}` is `[closing]`<br/>
 > And the `[User dropdown]` is `[opening]`<br/>
 > And the `[active dropdown]` is the `[User dropdown]`
-
-The mustache notation is used to allow a state to be identified dynamically at runtime. This is useful in cases such as the one above, where the changing state of one subject may affect the state of another subject.
