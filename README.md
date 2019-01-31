@@ -16,11 +16,11 @@ Scenarios can be described in one or more text files using the `.spec` extension
 
 Each scenario within a file is separated by two carriage return or new line characters.
 
+## Entities
+
 **Entities** within a scenario are wrapped in square brackets to identify them to the parser.
 
 Entity types are intended to be inferred by the parser from their positional placement.
-
-## Entities
 
 There are three types of entities:
 
