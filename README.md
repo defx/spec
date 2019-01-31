@@ -32,22 +32,22 @@ There are three types of entities:
 
 ### Abstract
 
-> Given that the `[Subject]` is currently `[State A]`<br/>
-> When the `[Event]` takes place<br/>
-> Then the `[Subject]` is now `[State B]`
+> Given that the `[subject]` is currently in `[state 1]`<br/>
+> When the `[event]` takes place<br/>
+> Then the `[subject]` is now in `[state 2]`
 
 ### Concrete
 
-> Given that the `[Navigation]` is `[closed]`<br/>
-> When the `[user]` `[taps]` or `[clicks]` the `[Hamburger Icon]`<br/>
-> Then the `[Navigation]` is `[opening]`
+> Given that the `[navigation]` is `[closed]`<br/>
+> When the `[user]` `[taps]` or `[clicks]` the `[hamburger icon]`<br/>
+> Then the `[navigation]` is `[opening]`
 
 ### Token Replacement
 
 Mustache notation is used to allow a state to be identified dynamically at runtime. This is useful in cases such as the following where the changing state of one subject may affect the state of another subject.
 
-> Given that the `[User dropdown]` is `[closed]`<br/>
+> Given that the `[user dropdown]` is `[closed]`<br/>
 > When the `[user]` `[touches]` the `[User Icon]`<br/>
 > Then the `{{active dropdown}}` is `[closing]`<br/>
-> And the `[User dropdown]` is `[opening]`<br/>
-> And the `[active dropdown]` is the `[User dropdown]`
+> And the `[user dropdown]` is `[opening]`<br/>
+> And the `[active dropdown]` is the `[user dropdown]`
