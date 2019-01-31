@@ -2,7 +2,7 @@
 
 ## Rationale
 
-**spec** is a simple standard for describing Given-When-Then scenarios using notation that is easy to parse for the purpose of generating code directly from BDD-style requirements specifications. This document describes **spec** to help facilitate implementation of parsers in different languages.
+**spec** is a simple standard for describing Given-When-Then scenarios using notation that is easy to parse for the purpose of generating code directly from the specification. This document describes **spec** to help facilitate implementation of parsers in different languages.
 
 ## Spec
 
