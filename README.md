@@ -32,9 +32,9 @@ There are three types of entities:
 
 ### Abstract
 
-> Given that the `[Subject]` is `[State A]`<br/>
-> When the `[Event]`<br/>
-> Then the `[Subject]` is `[State B]`
+> Given that the `[Subject]` is currently `[State A]`<br/>
+> When the `[Event]` takes place<br/>
+> Then the `[Subject]` is now `[State B]`
 
 ### Concrete
 
