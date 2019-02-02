@@ -2,7 +2,7 @@
 
 ## Rationale
 
-**spec** is a simple standard for describing Given-When-Then scenarios using notation that is easy to parse for the purpose of generating code directly from the specification. This document describes **spec** to help facilitate implementation of parsers in different languages.
+**spec** is a simple standard for describing behavioural specifications using notation that is easy to parse for the purpose of generating code directly from the specification. This document describes **spec** to help facilitate implementation of parsers in different languages.
 
 ## Spec
 
@@ -39,5 +39,5 @@ There are three types of entities:
 ### Concrete
 
 > Given that the `[navigation]` is `[closed]`<br/>
-> When the `[user]` `[taps]` or `[clicks]` the `[hamburger icon]`<br/>
+> When the `[user]` `[taps]` the `[hamburger icon]`<br/>
 > Then the `[navigation]` is `[opening]`
