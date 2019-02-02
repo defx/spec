@@ -59,6 +59,6 @@ Subjects may be grouped into sets using "is a" statements such as...
 
 This allows behaviour to be described once for a set, rather than repeating the same scenarios for each individual member.
 
-> Given that a [dropdown] is opening
-> When the [dropdown opening transition ends]
+> Given that a [dropdown] is opening<br/>
+> When the [dropdown opening transition ends]<br/>
 > Then the [dropdown] is [open]
