@@ -2,7 +2,7 @@
 
 ## Rationale
 
-**spec** is a simple standard for describing behavioural specifications using notation that is easy to parse for the purpose of generating code directly from the specification. This document describes **spec** to help facilitate implementation of parsers in different languages.
+**spec** is a simple set of guidelines to help facilitate the writing of behavioural specifications that are easily interpreted by both humans and machines.
 
 ## Spec
 
@@ -16,6 +16,12 @@ Scenarios can be described in one or more text files using the `.spec` extension
 
 Each scenario within a file is separated by two carriage return or new line characters.
 
+## Given-When-Then
+
+GWT's are _perfect_ for describing event-driven state transitions.
+
+The addition of zero or more "And" statements following the "Given" and/or "Then" statements allows any number of pre or post conditions for each event.
+
 ## Entities
 
 **Entities** within a scenario are wrapped in square brackets to identify them to the parser.
@@ -25,6 +31,7 @@ Entity types are intended to be inferred by the parser from their positional pla
 There are three types of entities:
 
 - **Subject**: _(Such as a user, or a named component)_
+- **Group**: _(Any set of subjects that may share some common behaviour)_
 - **Events**: _(Such as "tap" or "scroll")_
 - **States**: _(Such as "open" or "closed")_
 
@@ -41,3 +48,17 @@ There are three types of entities:
 > Given that the `[navigation]` is `[closed]`<br/>
 > When the `[user]` `[taps]` the `[hamburger icon]`<br/>
 > Then the `[navigation]` is `[opening]`
+
+## Sets
+
+### Grouping with "is a"
+
+Subjects may be grouped into sets using "is a" statements such as...
+
+> minibag is a [dropdown] component
+
+This allows behaviour to be described once for a set, rather than repeating the same scenarios for each individual member.
+
+> Given that a [dropdown] is opening
+> When the [dropdown opening transition ends]
+> Then the [dropdown] is [open]
