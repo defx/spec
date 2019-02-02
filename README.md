@@ -55,7 +55,8 @@ There are three types of entities:
 
 Subjects may be grouped into sets using "is a" statements such as...
 
-> minibag is a [dropdown] component
+> [minibag] is a [dropdown]<br/>
+> [account menu] is a [dropdown]
 
 This allows behaviour to be described once for a set, rather than repeating the same scenarios for each individual member.
 
