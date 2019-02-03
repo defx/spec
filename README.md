@@ -67,10 +67,8 @@ Subjects may be grouped into sets using "is a" statements such as...
 This allows behaviour to be described once for a set, rather than repeating the same scenarios for each individual member.
 
 > given that a `[dropdown]` is `[open]`<br/>
-> when the `[user]` `[taps outside]` of the `[dropdown]`<br/>
-> then the `[dropdown]` is `[closing]`
-
-You can also identify a particular subject or subjects within a group by their current state...
+> when the `[user]` `[taps outside]` of the `[open][dropdown]`<br/>
+> then the `[open][dropdown]` is `[closing]`
 
 > given that a `[dropdown]` is `[open]`<br/>
 > when another `[dropdown]` starts `[opening]`<br/>
