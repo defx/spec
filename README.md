@@ -27,15 +27,15 @@ There are three valid patterns for a scenario:
 
 ### _"Given...Then"_
 
-If the preconditions described by "Given..."<sup>\*</sup> are all true, then the postconditions described by "Then..."<sup>\*</sup> should be applied.
+If the preconditions described by _"Given..."_<sup>\*</sup> are all true, then the postconditions described by _"Then..."_<sup>\*</sup> should be applied.
 
 ### _"Given...When...Then"_
 
-The same as for "Given...Then", but only evaluated _when_ the event described by "When..." occurs.
+The same as for _"Given...Then"_, but only evaluated _when_ the event described by _"When..."_ occurs.
 
 ### _"When...Then"_
 
-When the event described by "When..." occurs, then the postconditions described by "Then..."<sup>\*</sup> should be applied.
+When the event described by _"When..."_ occurs, then the postconditions described by _"Then..."_<sup>\*</sup> should be applied.
 
 <sup>*</sup> _(And any subsequent "And..." statements)_
 
