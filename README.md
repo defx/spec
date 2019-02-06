@@ -31,7 +31,7 @@ If the preconditions described by _"Given..."_<sup>\*</sup> are all true, then t
 
 ### _"Given...When...Then"_
 
-The same as for _"Given...Then"_, but only evaluated _when_ the event described by _"When..."_ occurs.
+The same as for _"Given...Then"_, but only evaluated when the event described by _"When..."_ occurs.
 
 ### _"When...Then"_
 
