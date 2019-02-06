@@ -25,15 +25,15 @@ The formal structure of our scenarios is comprised of two parts;
 
 There are three valid patterns for a scenario:
 
-### "Given...Then"
+### _"Given...Then"_
 
 If the preconditions described by "Given..."<sup>\*</sup> are all true, then the postconditions described by "Then..."<sup>\*</sup> should be applied.
 
-### "Given...When...Then"
+### _"Given...When...Then"_
 
 The same as for "Given...Then", but only evaluated _when_ the event described by "When..." occurs.
 
-### "When...Then"
+### _"When...Then"_
 
 When the event described by "When..." occurs, then the postconditions described by "Then..."<sup>\*</sup> should be applied.
 
