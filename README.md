@@ -29,13 +29,30 @@ There are three valid patterns for a scenario:
 
 If the preconditions described by _"Given..."_<sup>\*</sup> are all true, then the postconditions described by _"Then..."_<sup>\*</sup> should be applied.
 
+For example:
+
+> Given that playback is paused<br/>
+> Then the pause button is hidden<br/>
+> And the play button is visible
+
 ### _"Given...When...Then"_
 
 The same as for _"Given...Then"_, but only evaluated when the event described by _"When..."_ occurs.
 
+For example:
+
+> Given that playback is paused<br/>
+> When the user taps the play button<br/>
+> Then playback is resumed
+
 ### _"When...Then"_
 
 When the event described by _"When..."_ occurs, then the postconditions described by _"Then..."_<sup>\*</sup> should be applied.
+
+For example:
+
+> When the user scrolls the window<br/>
+> Then the menu position is fixed
 
 <sup>*</sup> _(And any subsequent "And..." statements)_
 
