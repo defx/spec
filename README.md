@@ -54,7 +54,7 @@ For example:
 > When the user scrolls the window<br/>
 > Then the menu position is fixed
 
-<sup>*</sup> _(And any subsequent "And..." statements)_
+<sup>\*</sup> _(And any subsequent "And..." statements)_
 
 ## Entities
 
@@ -95,11 +95,11 @@ For example:
 > When the `[user]` `[taps]` the `[play button]`<br/>
 > Then `[playback]` is `[resumed]`
 
-For both "Given..." and "Then...", `[subject]` may be replaced by `[group]`.
+For both _"Given..."_ and _"Then..."_, `[subject]` may be replaced by `[group]`.
 
 ### Targeting group members by state
 
-You can apply a rule to only the members of a group matching a particular state by using a `[state][group]` pair
+You can apply a postcondition to only the members of a group matching a particular state by using a `[state][group]` pair
 
 For example:
 
