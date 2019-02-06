@@ -14,26 +14,34 @@ Scenarios can be described in one or more text files using the `.spec` extension
 
 Each scenario within a file is separated by two carriage return or new line characters.
 
-## State Transitions
+## A Formal Structure
 
-Given-When-Then scenario's are _perfect_ for describing event-driven state transitions. For example:
+The formal structure of our scenarios is comprised of two parts;
 
-> given that we are in state S1<br/>
-> when we receive event E1<br/>
-> then we transition to state S2
+- the order of statements within a scenario
+- the order of entities within a statement
 
-Zero or more "And" statements may follow a "given" and/or a "then" statement to allow any number of pre or post conditions to the event.
+## Statement Order
 
-> given one thing is in state S1<br/>
-> and another thing is in state S2
-> when we recieve event E1<br/>
-> then the one thing will transition to state S2
+There are three valid patterns for a scenario:
+
+### "Given...Then"
+
+If the preconditions described by "Given..."<sup>\*</sup> are all true, then the postconditions described by "Then..."<sup>\*</sup> should be applied.
+
+### "Given...When...Then"
+
+The same as for "Given...Then", but only evaluated _when_ the event described by "When..." occurs.
+
+### "When...Then"
+
+When the event described by "When..." occurs, then the postconditions described by "Then..."<sup>\*</sup> should be applied.
+
+<sup>*</sup> _(And any subsequent "And..." statements)_
 
 ## Entities
 
 In order to make our specifications both _consistent_ and _easy to parse_, we explicitly identify **entities** within a scenario by wrapping them in square brackets.
-
-Entity types may be inferred by the parser by their positional placement.
 
 There are four types of entities:
 
@@ -42,49 +50,28 @@ There are four types of entities:
 - **Event**: _(Such as "tap" or "scroll")_
 - **State**: _(Such as "open" or "closed")_
 
-## Examples
+## Entity Order
 
-### Abstract
+The simplest and most common type of scenario looks like this:
 
-> given that the `[subject]` is currently in `[state 1]`<br/>
-> when the `[event]` takes place<br/>
-> then the `[subject]` is now in `[state 2]`
+> Given...`[subject]`...`[state]`<br/>
+> When...`[subject]`...`[event]`...`[subject]`<br/>
+> Then...`[subject]`...`[state]`
 
-### Concrete
+For example:
 
-> given that the `[navigation]` is `[closed]`<br/>
-> when the `[user]` `[taps]` the `[hamburger icon]`<br/>
-> then the `[navigation]` is `[opening]`
+> Given that `[playback]` is `[paused]`<br/>
+> When the `[user]` `[taps]` the `[play button]`<br/>
+> Then `[playback]` is `[resumed]`
 
-## Sets
+### Groups
 
-### Grouping with "is a"
+For both "Given..." and "Then...", `[subject]` may be replaced by `[group]`.
 
-Subjects may be grouped into sets using "is a" statements such as...
+If you require group entities, then you'll probably also want to filter those groups in some way, and this can be done by using a `[state][group]` pair. This allows you to apply the rule to only the members of a group matching a particular state.
 
-> `[minibag]` is a `[dropdown]`<br/>`[account menu]` is a `[dropdown]`
+For example:
 
-This allows behaviour to be described once for a set, rather than repeating the same scenarios for each individual member.
-
-> given that a `[dropdown]` is `[open]`<br/>
-> when the `[user]` `[taps outside]` of the `[open][dropdown]`<br/>
-> then the `[open][dropdown]` is `[closing]`
-
-> given that a `[dropdown]` is `[open]`<br/>
-> when another `[dropdown]` starts `[opening]`<br/>
-> then the `[open][dropdown]` is now `[closing]`
-
-In the previous example, any subject within the `"dropdown"` group that has a current state of `"open"` will transition to a state of `"closing"`. Note also that we're using the state `[opening]` as if it were an event and this is perfectly valid, - when a state is used in this position, it will trigger evaluation of the preconditions _once_ when it first changes to that value from another.
-
-## Entity Rules
-
-- **Given**:<br/>
-  2: given...`[subject|group]`...`[state]`<br/>
-- **When**:<br/>
-  1: when...`[subject]`...`[event|state]`<br/>
-  2: when...`[subject][event]`...`[subject (event target)]`<br/>
-- **Then**:<br/>
-  2: then...`[subject|group]`...`[state]`<br/>
-  3: then...`[state][group]`...`[state]`
-
-- **And**: Assume the same rules as for whichever core statement it follows (e.g., "given", or "then")
+> Given that a `[dropdown]` is `[open]`<br/>
+> When the `[user]` `[taps outside]` of the `[open][dropdown]`<br/>
+> Then the `[open][dropdown]` is `[closing]`
