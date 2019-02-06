@@ -95,11 +95,11 @@ For example:
 > When the `[user]` `[taps]` the `[play button]`<br/>
 > Then `[playback]` is `[resumed]`
 
-### Groups
-
 For both "Given..." and "Then...", `[subject]` may be replaced by `[group]`.
 
-If you require group entities, then you'll probably also want to filter those groups in some way, and this can be done by using a `[state][group]` pair. This allows you to apply the rule to only the members of a group matching a particular state.
+### Targeting group members by state
+
+You can apply a rule to only the members of a group matching a particular state by using a `[state][group]` pair
 
 For example:
 
