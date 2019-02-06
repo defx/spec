@@ -50,6 +50,20 @@ There are four types of entities:
 - **Event**: _(Such as "tap" or "scroll")_
 - **State**: _(Such as "open" or "closed")_
 
+### Subject Groups
+
+Subjects may be grouped together using _"...is a..."_ statements.
+
+For example:
+
+> `[minibag]` is a `[dropdown]`<br/>`[account menu]` is a `[dropdown]`
+
+This allows behaviour to be described once for a set, rather than repeating the same scenarios for each individual member.
+
+> given that a `[dropdown]` is `[open]`<br/>
+> when the `[user]` `[taps outside]` of the `[open][dropdown]`<br/>
+> then the `[open][dropdown]` is `[closing]`
+
 ## Entity Order
 
 The simplest and most common type of scenario looks like this:
