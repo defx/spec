@@ -37,7 +37,7 @@ For example:
 
 ### _"Given...When...Then"_
 
-The same as for _"Given...Then"_, but only evaluated when the event described by _"When..."_ occurs.
+The same as for _"Given...Then"_, but only evaluated in case of the event described by _"When..."_.
 
 For example:
 
@@ -47,7 +47,7 @@ For example:
 
 ### _"When...Then"_
 
-When the event described by _"When..."_ occurs, then the postconditions described by _"Then..."_<sup>\*</sup> should be applied.
+In case of the event described by _"When..."_, then the postconditions described by _"Then..."_<sup>\*</sup> should be applied.
 
 For example:
 
@@ -58,7 +58,7 @@ For example:
 
 ## Entities
 
-In order to make our specifications both _consistent_ and _easy to parse_, we explicitly identify **entities** within a scenario by wrapping them in square brackets.
+In order to make our specifications both consistent and easy to parse, we explicitly identify **entities** within a scenario by wrapping them in square brackets.
 
 There are four types of entities:
 
@@ -75,11 +75,11 @@ For example:
 
 > `[minibag]` is a `[dropdown]`<br/>`[account menu]` is a `[dropdown]`
 
-This allows behaviour to be described once for a set, rather than repeating the same scenarios for each individual member.
+This allows behaviour to be described once for a group, rather than repeating the same scenarios for each individual member.
 
-> given that a `[dropdown]` is `[open]`<br/>
-> when the `[user]` `[taps outside]` of the `[open][dropdown]`<br/>
-> then the `[open][dropdown]` is `[closing]`
+> Given that a `[dropdown]` is `[open]`<br/>
+> When the `[user]` `[taps outside]` of the `[open][dropdown]`<br/>
+> Then the `[open][dropdown]` is `[closing]`
 
 ## Entity Order
 
