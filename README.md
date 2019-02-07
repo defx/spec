@@ -86,13 +86,13 @@ This allows behaviour to be described once for a group, rather than repeating th
 The simplest and most common type of scenario looks like this:
 
 > Given...`[subject]`...`[state]`<br/>
-> When...`[subject]`...`[event]`...`[subject]`<br/>
+> When...`[subject]`...`[event]`<br/>
 > Then...`[subject]`...`[state]`
 
 For example:
 
 > Given that `[playback]` is `[paused]`<br/>
-> When the `[user]` `[taps]` the `[play button]`<br/>
+> When the `[play button]` is `[pressed]`<br/>
 > Then `[playback]` is `[resumed]`
 
 For both _"Given..."_ and _"Then..."_, `[subject]` may be replaced by `[group]`.
