@@ -95,14 +95,35 @@ For example:
 > When the `[play button]` is `[pressed]`<br/>
 > Then `[playback]` is `[resumed]`
 
-For both _"Given..."_ and _"Then..."_, `[subject]` may be replaced by `[group]`.
+Note that, for both _"Given..."_ and _"Then..."_, `[subject]` is interchangeable with `[group]`.
 
-### Targeting group members by state
+### Group Filters
 
-You can apply a postcondition to only the members of a group matching a particular state by using a `[state][group]` pair
+You can target particular member of a group by state by prepending the group name with that state, for example:
+
+> When the `[user]` `[taps outside]` of an `[open][dropdown]`<br/>
+> Then the `[open][dropdown]` is `[closing]`
+
+### When... _with two entities_
+
+> When...`[subject]`...`[event]`<br/>
+
+Here the subject is the _event target_, for example:
+
+> When the `[button]` is `[pressed]`<br/>
+
+### When... _with three entities_
+
+> When...`[subject]`...`[event]`...`[subject]`
+
+Here, the first subject is the _event source_ and the second subject is the _event target_, for example:
+
+> When the `[user]` `[taps]` the `[icon]`
+
+### When... _with four entities_
+
+> When...`[subject]`...`[event]`...`[state][subject]`
 
 For example:
 
-> Given that a `[dropdown]` is `[open]`<br/>
-> When the `[user]` `[taps outside]` of the `[open][dropdown]`<br/>
-> Then the `[open][dropdown]` is `[closing]`
+> When the `[user]` `[taps outside]` of an `[open][dropdown]`<br/>
