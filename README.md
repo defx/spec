@@ -12,11 +12,23 @@ Scenarios can be described in one or more text files using the `.spec` extension
 
 `.spec` files should be encoded using UTF-8.
 
-Each scenario within a file is separated by two carriage return or new line characters.
+Each scenario within a file is separated by two newline characters.
 
-## A Formal Structure
+## Entities
 
-The formal structure of our scenarios is comprised of two parts;
+In order to make our specifications easier to parse, we explicitly identify **entities** within a scenario by wrapping them in square brackets.
+
+There are five types of entities:
+
+- **Component**: _(A named component within the system)_
+- **State**: _(A value that represents one possible state of a named component)_
+- **Event**: _(The name of an event that affects the state of one or more components)_
+- **Event Source**: _(Some entity capable of triggering an event)_
+- **Event Target**: _(Some entity capable of receiving an event)_
+
+## Structure
+
+The formal structure of a scenario is comprised of two parts;
 
 - the order of statements within a scenario
 - the order of entities within a statement
@@ -56,38 +68,13 @@ For example:
 
 <sup>\*</sup> _(And any subsequent "And..." statements)_
 
-## Entities
-
-In order to make our specifications both consistent and easy to parse, we explicitly identify **entities** within a scenario by wrapping them in square brackets.
-
-There are four types of entities:
-
-- **Subject**: _(Such as a user, or a named component)_
-- **Group**: _(Any set of subjects that may share some common behaviour)_
-- **Event**: _(Such as "tap" or "scroll")_
-- **State**: _(Such as "open" or "closed")_
-
-### Subject Groups
-
-Subjects may be grouped together using _"...is a..."_ statements.
-
-For example:
-
-> `[minibag]` is a `[dropdown]`<br/>`[account menu]` is a `[dropdown]`
-
-This allows behaviour to be described once for a group, rather than repeating the same scenarios for each individual member.
-
-> Given that a `[dropdown]` is `[open]`<br/>
-> When the `[user]` `[taps outside]` of the `[open][dropdown]`<br/>
-> Then the `[open][dropdown]` is `[closing]`
-
 ## Entity Order
 
 The simplest and most common type of scenario looks like this:
 
-> Given...`[subject]`...`[state]`<br/>
-> When...`[subject]`...`[event]`<br/>
-> Then...`[subject]`...`[state]`
+> Given...`[component]`...`[current state]`<br/>
+> When...`[event target]`...`[event]`<br/>
+> Then...`[component]`...`[next state]`
 
 For example:
 
@@ -95,35 +82,12 @@ For example:
 > When the `[play button]` is `[pressed]`<br/>
 > Then `[playback]` is `[resumed]`
 
-Note that, for both _"Given..."_ and _"Then..."_, `[subject]` is interchangeable with `[group]`.
+You may also provide three entities to a _"When..."_ clause in order to identify the **Event Source**.
 
-### Group Filters
-
-You can target particular member of a group by state by prepending the group name with that state, for example:
-
-> When the `[user]` `[taps outside]` of an `[open][dropdown]`<br/>
-> Then the `[open][dropdown]` is `[closing]`
-
-### When... _with two entities_
-
-> When...`[subject]`...`[event]`<br/>
-
-Here the subject is the _event target_, for example:
-
-> When the `[button]` is `[pressed]`<br/>
-
-### When... _with three entities_
-
-> When...`[subject]`...`[event]`...`[subject]`
-
-Here, the first subject is the _event source_ and the second subject is the _event target_, for example:
-
-> When the `[user]` `[taps]` the `[icon]`
-
-### When... _with four entities_
-
-> When...`[subject]`...`[event]`...`[state][subject]`
+> When...`[event source]`...`[event]`...<br/>
 
 For example:
 
-> When the `[user]` `[taps outside]` of an `[open][dropdown]`<br/>
+> Given that `[playback]` is `[paused]`<br/>
+> When the ` [user]``[presses] ` the `[play button]`<br/>
+> Then `[playback]` is `[resumed]`
