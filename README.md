@@ -89,5 +89,5 @@ You may also provide three entities to a _"When..."_ clause in order to identify
 For example:
 
 > Given that `[playback]` is `[paused]`<br/>
-> When the ` [user]``[presses] ` the `[play button]`<br/>
+> When the `[user][presses]` the `[play button]`<br/>
 > Then `[playback]` is `[resumed]`
