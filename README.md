@@ -32,7 +32,7 @@ Initial states may be defined using _"...is..."_ statements.
 
 For example:
 
-> [playback] is [paused]
+> `[playback]` is `[paused]`
 
 ## Scenarios
 
