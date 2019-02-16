@@ -51,9 +51,9 @@ If the preconditions described by _"Given..."_<sup>\*</sup> are all true, then t
 
 For example:
 
-> Given that playback is paused<br/>
-> Then the pause button is hidden<br/>
-> And the play button is visible
+> Given that `[playback]` is `[paused]`<br/>
+> Then the `[pause button]` is `[hidden]`<br/>
+> And the `[play button]` is `[visible]`
 
 ### _"Given...When...Then"_
 
@@ -61,9 +61,9 @@ The same as for _"Given...Then"_, but only evaluated in case of the event descri
 
 For example:
 
-> Given that playback is paused<br/>
-> When the user taps the play button<br/>
-> Then playback is resumed
+> Given that `[playback]` is `[paused]`<br/>
+> When the `[user]` `[taps]` the `[play button]`<br/>
+> Then `[playback]` is `[resumed]`
 
 ### _"When...Then"_
 
@@ -71,8 +71,8 @@ In case of the event described by _"When..."_, then the postconditions described
 
 For example:
 
-> When the user scrolls the window<br/>
-> Then the menu position is fixed
+> When the `[user]` `[scrolls]` the `[window]`<br/>
+> Then the `[menu position]` is `[fixed]`
 
 <sup>\*</sup> _(And any subsequent "And..." statements)_
 
