@@ -26,7 +26,15 @@ There are five types of entities:
 - **Event Source**: _(Some entity capable of triggering an event)_
 - **Event Target**: _(Some entity capable of receiving an event)_
 
-## Structure
+## Initial states
+
+Initial states may be defined using _"...is..."_ statements.
+
+For example:
+
+> [playback] is [paused]
+
+## Scenarios
 
 The formal structure of a scenario is comprised of two parts;
 
@@ -70,7 +78,7 @@ For example:
 
 ## Entity Order
 
-The simplest and most common type of scenario looks like this:
+A simple scenario looks like this:
 
 > Given...`[component]`...`[current state]`<br/>
 > When...`[event target]`...`[event]`<br/>
