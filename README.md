@@ -92,7 +92,7 @@ For example:
 
 You may also provide three entities to a _"When..."_ clause in order to identify the **Event Source**.
 
-> When...`[event source]`...`[event]`...<br/>
+> When...`[event source]`...`[event]`...`[event target]`<br/>
 
 For example:
 
