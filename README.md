@@ -1,101 +1,329 @@
-# spec
+# Spec
 
-## Rationale
+**Spec** is a lightweight format for describing software behaviour in a way that is readable by humans and interpretable by machines.
 
-**spec** is a simple set of guidelines to help facilitate the writing of behavioural specifications using a formal system that may be easily interpreted by both humans and machines.
+Spec builds on the familiar **Given / When / Then** style popularised by Gherkin, but introduces a formally defined structure that allows specifications to be reliably parsed and analysed by software.
 
-This specification is currently casual, and will be developed further with feedback from implementors.
+The goal of Spec is to provide a simple way to express **behavioural specifications**, particularly UI and product flows, while preserving natural language and making the structure explicit enough for tools to understand.
 
-## General considerations
+---
 
-Scenarios can be described in one or more text files using the `.spec` extension for easy identification.
+## Overview
 
-`.spec` files should be encoded using UTF-8.
+A Spec describes behaviour using scenarios written in natural product language.
 
-Each scenario within a file is separated by two newline characters.
+Each scenario represents a **state transition** in a system:
 
-## Entities
+1. **Given** – the current state of the system
+2. **When** – the event that triggers a transition
+3. **Then** – the resulting behaviour or state
 
-In order to make our specifications easier to parse, we explicitly identify **entities** within a scenario by wrapping them in square brackets.
+Each statement contains a structured clause:
 
-There are five types of entities:
+```
+[entity] verb [entity]
+```
 
-- **Component**: _(A named component within the system)_
-- **State**: _(A value that represents one possible state of a named component)_
-- **Event**: _(The name of an event that affects the state of one or more components)_
-- **Event Source**: _(Some entity capable of triggering an event)_
-- **Event Target**: _(Some entity capable of receiving an event)_
-
-## Initial states
-
-Initial states may be defined using _"...is..."_ statements.
+Entities are written in square brackets so they can be reliably identified by machines, while the rest of the sentence remains natural language.
 
 For example:
 
-> `[playback]` is `[paused]`
+```
+Given that the [basket] has [items]
 
-## Scenarios
+When the [user] taps [checkout button]
 
-The formal structure of a scenario is comprised of two parts;
+Then the [checkout] requires [sign in]
+And the [sign in screen] is [visible]
+```
 
-- the order of statements within a scenario
-- the order of entities within a statement
+Because entities are explicitly marked, tools can extract relationships from the specification such as:
 
-## Statement Order
+```
+(basket, has, items)
+(user, taps, checkout button)
+(checkout, requires, sign in)
+```
 
-There are three valid patterns for a scenario:
+These relationships describe the behaviour of the system and can be used by tools to analyse specifications, generate tests, visualise flows, or validate behaviour.
 
-### _"Given...Then"_
+---
 
-If the preconditions described by _"Given..."_<sup>\*</sup> are all true, then the postconditions described by _"Then..."_<sup>\*</sup> should be applied.
+## State Transitions
 
-For example:
+Each scenario in a Spec represents a **state transition** in the system.
 
-> Given that `[playback]` is `[paused]`<br/>
-> Then the `[pause button]` is `[hidden]`<br/>
-> And the `[play button]` is `[visible]`
-
-### _"Given...When...Then"_
-
-The same as for _"Given...Then"_, but only evaluated in case of the event described by _"When..."_.
-
-For example:
-
-> Given that `[playback]` is `[paused]`<br/>
-> When the `[user]` `[taps]` the `[play button]`<br/>
-> Then `[playback]` is `[resumed]`
-
-### _"When...Then"_
-
-In case of the event described by _"When..."_, then the postconditions described by _"Then..."_<sup>\*</sup> should be applied.
+The `Given` statements describe the conditions that are true before the transition.
+The `When` statement describes the event that triggers the transition.
+The `Then` statements describe the resulting conditions after the transition.
 
 For example:
 
-> When the `[user]` `[scrolls]` the `[window]`<br/>
-> Then the `[menu position]` is `[fixed]`
+```
+Given that the [basket] has [items]
+And the [user] is not [signed in]
 
-<sup>\*</sup> _(And any subsequent "And..." statements)_
+When the [user] taps [checkout button]
 
-## Entity Order
+Then the [checkout] requires [sign in]
+And the [sign in screen] is [visible]
+```
 
-A simple scenario looks like this:
+This scenario describes a transition from one set of conditions to another, triggered by a specific event.
 
-> Given...`[component]`...`[current state]`<br/>
-> When...`[event target]`...`[event]`<br/>
-> Then...`[component]`...`[next state]`
+Every scenario therefore contains exactly **one `When`**, representing the trigger for that transition.
 
-For example:
+---
 
-> Given that `[playback]` is `[paused]`<br/>
-> When the `[play button]` is `[pressed]`<br/>
-> Then `[playback]` is `[resumed]`
+## Goals
 
-You may also provide three entities to a _"When..."_ clause in order to identify the **Event Source**.
+Spec is designed with a few key principles.
 
-> When...`[event source]`...`[event]`...`[event target]`<br/>
+### Human-readable
 
-For example:
+Specs should read like product documentation rather than code.
 
-> Given that `[playback]` is `[paused]`<br/>
-> When the `[user][presses]` the `[play button]`<br/>
-> Then `[playback]` is `[resumed]`
+### Behaviour-focused
+
+Specs describe **observable behaviour**, not internal implementation.
+
+### Machine-interpretable
+
+Entities are explicitly marked so that tools can parse the specification and extract structured relationships.
+
+### Minimal syntax
+
+The format intentionally introduces only a small amount of structure so that specifications remain easy to write and understand.
+
+---
+
+## Core Concepts
+
+### Entities
+
+Entities represent things in the system.
+
+Examples:
+
+```
+[user]
+[basket]
+[checkout button]
+[payment step]
+```
+
+Entities can represent:
+
+* users
+* UI elements
+* application features
+* system components
+* conceptual objects such as `[items]` or `[discount]`
+
+---
+
+### Clauses
+
+A clause describes a relationship or action between two entities.
+
+```
+[entity] verb [entity]
+```
+
+Examples:
+
+```
+[basket] has [items]
+[user] taps [checkout button]
+[checkout] shows [payment step]
+[order] becomes [confirmed]
+```
+
+The verb remains natural language.
+
+---
+
+### Given
+
+`Given` describes the **state of the system before the transition**.
+
+A scenario may include:
+
+* one `Given`
+* zero or more `And` statements that extend the preconditions
+
+Example:
+
+```
+Given that the [basket] has [items]
+And the [user] is not [signed in]
+```
+
+---
+
+### When
+
+`When` describes the **trigger that causes the transition**.
+
+Every scenario **must include exactly one `When`**.
+
+Example:
+
+```
+When the [user] taps [checkout button]
+```
+
+---
+
+### Then
+
+`Then` describes the **result of the transition**.
+
+Additional outcomes may be expressed with `And`.
+
+Example:
+
+```
+Then the [checkout] requires [sign in]
+And the [sign in screen] is [visible]
+```
+
+---
+
+## Scenario Structure
+
+A scenario follows this structure:
+
+```
+Scenario: Title (optional)
+
+Given ...
+And ...
+
+When ...
+
+Then ...
+And ...
+```
+
+Examples:
+
+```
+Scenario: Guest checkout requires sign-in
+
+Given that the [basket] has [items]
+And the [user] is not [signed in]
+
+When the [user] taps [checkout button]
+
+Then the [checkout] requires [sign in]
+And the [sign in screen] is [visible]
+```
+
+Scenarios may also start directly with `When` if no preconditions are required.
+
+```
+Scenario: Verification link completes signup
+
+When the [user] opens [verification link]
+
+Then the [account] becomes [verified]
+And the [app] shows [profile setup screen]
+```
+
+---
+
+## Spec and Gherkin
+
+Spec is inspired by the **Given / When / Then** structure popularised by Gherkin.
+
+Gherkin is widely used because it encourages collaboration between product, design, and engineering teams through readable behavioural specifications.
+
+In Gherkin, the text of each step is interpreted by **step definitions** written in code. These step definitions determine how the step should be executed or validated.
+
+Spec takes a slightly different approach.
+
+Instead of leaving the meaning of the step text entirely to external code, Spec introduces a small amount of structure by explicitly marking **entities** within the sentence.
+
+For example, a typical Gherkin step might look like:
+
+```
+Given the basket contains items
+```
+
+In Spec, the same statement becomes:
+
+```
+Given that the [basket] has [items]
+```
+
+This structural constraint allows tools to reliably extract the relationships being described.
+
+The goal is not to replace Gherkin, but to **formalise a similar style of behavioural specification** so that it can be interpreted consistently by machines as well as humans.
+
+---
+
+## Comments
+
+Comments may appear anywhere in a spec file.
+
+```
+# This is a comment
+```
+
+Comments are ignored by parsers.
+
+---
+
+## Multiple Scenarios
+
+Scenarios are separated by blank lines.
+
+```
+Scenario: Guest checkout requires sign-in
+...
+
+Scenario: Verification link completes signup
+...
+```
+
+---
+
+## Formal Grammar
+
+The complete grammar of the Spec format is defined using **EBNF**.
+
+See:
+
+```
+spec.ebnf
+```
+
+---
+
+## Example
+
+```
+Scenario: Checkout requires sign-in
+
+Given that the [basket] has [items]
+And the [user] is not [signed in]
+
+When the [user] taps [checkout button]
+
+Then the [checkout] requires [sign in]
+And the [sign in screen] is [visible]
+```
+
+---
+
+## Future Tooling
+
+Because the structure of a Spec is explicit, tools can use specs to:
+
+* generate automated tests
+* visualise user flows
+* build state transition graphs
+* validate product behaviour
+
+Spec itself is intentionally minimal. Tooling and integrations can evolve independently.

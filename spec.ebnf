@@ -1,0 +1,86 @@
+(* =========================
+   Top-level structure
+   ========================= *)
+
+spec-file          = { wsp }, { ignorable-line }, scenario, { scenario-sep, scenario }, { ignorable-line }, { wsp } ;
+
+scenario-sep       = blankline, { blankline } ;
+
+blankline          = { wsp }, newline ;
+
+ignorable-line     = blankline | comment-line ;
+
+(* =========================
+   Scenario
+   ========================= *)
+
+scenario           = [ title-line, newline, { ignorable-line } ],
+                     scenario-body ;
+
+title-line         = "Scenario:", wsp, { wsp }, title-text ;
+title-text         = { non-newline-char } ;
+
+(* Every scenario must include exactly one When. *)
+scenario-body      = given-when-then | when-then ;
+
+(* Given-When-Then: exactly one Given, And* (preconditions), required When, Then, And* (outcomes) *)
+given-when-then    = given-line, newline,
+                     { ignorable-line | (and-given-line, newline) },
+                     when-line, newline,
+                     { ignorable-line },
+                     then-line,
+                     { newline, { ignorable-line }, and-then-line } ;
+
+(* When-Then: required When, Then, And* (outcomes) *)
+when-then          = when-line, newline,
+                     { ignorable-line },
+                     then-line,
+                     { newline, { ignorable-line }, and-then-line } ;
+
+(* =========================
+   Statement lines
+   ========================= *)
+
+given-line         = "Given", wsp, { wsp }, [ "that", wsp, { wsp } ], [ "the", wsp, { wsp } ], clause ;
+when-line          = "When",  wsp, { wsp }, [ "the", wsp, { wsp } ], clause ;
+then-line          = "Then",  wsp, { wsp }, [ "the", wsp, { wsp } ], clause ;
+
+(* Same surface token "And", but position determines whether it's a precondition or outcome. *)
+and-given-line     = "And",   wsp, { wsp }, [ "the", wsp, { wsp } ], clause ;
+and-then-line      = "And",   wsp, { wsp }, [ "the", wsp, { wsp } ], clause ;
+
+(* =========================
+   Clause (the triple)
+   ========================= *)
+
+clause             = entity, wsp, { wsp }, verb-phrase, wsp, { wsp }, entity ;
+
+(* Verb phrase: non-empty text that does not include '[' or newline.
+   Supports multi-word verbs like "is not", "applies to", "signs in", etc.
+*)
+verb-phrase        = verb-char, { verb-char } ;
+verb-char          = ? any Unicode character except newline or "[" ? ;
+
+(* =========================
+   Comments
+   ========================= *)
+
+comment-line       = { wsp }, "#", { non-newline-char }, newline ;
+
+(* =========================
+   Entity
+   ========================= *)
+
+entity             = "[", entity-text, "]" ;
+
+entity-text        = { entity-char } ;
+entity-char        = ? any Unicode character except "]" or newline ? ;
+
+(* =========================
+   Whitespace / newlines
+   ========================= *)
+
+wsp                = " " | "\t" ;
+newline            = "\n" | "\r\n" ;
+
+non-newline-char   = ? any Unicode character except newline ? ;
