@@ -8,6 +8,27 @@ The goal of Spec is to provide a simple way to express **behavioural specificati
 
 ---
 
+## Table of Contents
+
+- [Overview](#overview)
+- [State Transitions](#state-transitions)
+- [Goals](#goals)
+- [Core Concepts](#core-concepts)
+  - [Entities](#entities)
+  - [Clauses](#clauses)
+  - [Given](#given)
+  - [When](#when)
+  - [Then](#then)
+- [Scenario Structure](#scenario-structure)
+- [Spec and Gherkin](#spec-and-gherkin)
+- [Comments](#comments)
+- [Multiple Scenarios](#multiple-scenarios)
+- [Formal Grammar](#formal-grammar)
+- [Example](#example)
+- [Future Tooling](#future-tooling)
+
+---
+
 ## Overview
 
 A Spec describes behaviour using scenarios written in natural product language.
@@ -293,11 +314,7 @@ Scenario: Verification link completes signup
 
 The complete grammar of the Spec format is defined using **EBNF**.
 
-See:
-
-```
-spec.ebnf
-```
+See [`spec.ebnf`](./spec.ebnf)
 
 ---
 
