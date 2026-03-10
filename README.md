@@ -17,18 +17,18 @@ Spec focuses on **observable behaviour**, rather than implementation details.
 
 ## Quick example
 
-A Spec describes system behaviour using structured scenarios.
+A Spec describes behaviour using structured scenarios.
 
 ```text id="9i0g4f"
-Scenario: Successful payment confirms an order
+Scenario: Active entitlements disable purchase
 
-Given that the [order] is [created]
-And the [payment] is [pending]
+Given that the [user] is [signed in]
+And the [entitlement] is [active]
 
-When the [payment provider] confirms the [payment]
+When the [product page] becomes [visible]
 
-Then the [order] becomes [confirmed]
-And the [payment] becomes [successful]
+Then the [buy button] is [disabled]
+And the [ownership badge] is [visible]
 ```
 
 From scenarios like this, tooling can infer behaviour such as:
@@ -40,7 +40,7 @@ From scenarios like this, tooling can infer behaviour such as:
 
 See the full example in:
 
-`examples/game-purchase-entitlement/`
+[examples/game-purchase-entitlement/](examples/game-purchase-entitlement/)
 
 ---
 
@@ -452,18 +452,6 @@ Instead of scattering behaviour across documentation, code comments, and tests, 
 
 Spec is designed to describe **observable system behaviour**.
 It intentionally avoids solving problems that are better handled by other tools.
-
-## Not a test framework
-
-Spec scenarios resemble behavioural tests, but they are **not executable tests** by themselves.
-
-A specification describes expected behaviour in a system. Tooling may later use the specification to generate or assist with tests, but the spec itself is intended to remain **human-readable documentation of behaviour**.
-
-## Not an API schema
-
-Spec does not attempt to replace schema languages such as OpenAPI, GraphQL schemas, or database models.
-
-Those formats describe **data structures and interfaces**, whereas Spec describes **system behaviour and state transitions**.
 
 ## Not an implementation language
 
