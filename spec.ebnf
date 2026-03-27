@@ -2,85 +2,150 @@
    Top-level structure
    ========================= *)
 
-spec-file          = { wsp }, { ignorable-line }, scenario, { scenario-sep, scenario }, { ignorable-line }, { wsp } ;
+spec-file =
+    block,
+    { empty-line, block } ;
 
-scenario-sep       = blankline, { blankline } ;
-
-blankline          = { wsp }, newline ;
-
-ignorable-line     = blankline | comment-line ;
+(* A blank line is a full empty line. *)
+empty-line = line-end, line-end ;
 
 (* =========================
-   Scenario
+   Block
    ========================= *)
 
-scenario           = [ title-line, newline, { ignorable-line } ],
-                     scenario-body ;
+block =
+    { comment-line, line-end },
+    [ title-line, line-end, [ line-end ] ],
+    block-body ;
 
-title-line         = "Scenario:", wsp, { wsp }, title-text ;
-title-text         = { non-newline-char } ;
+title-line = "Scenario:", req-ws, { non-newline-char } ;
 
-(* Every scenario must include exactly one When. *)
-scenario-body      = given-when-then | when-then ;
+(* A block is either:
+   - a transition block: Given* + When + Then*
+   - an event-first transition block: When + Then*
+   - an invariant block: Given* + Then*
+*)
 
-(* Given-When-Then: exactly one Given, And* (preconditions), required When, Then, And* (outcomes) *)
-given-when-then    = given-line, newline,
-                     { ignorable-line | (and-given-line, newline) },
-                     when-line, newline,
-                     { ignorable-line },
-                     then-line,
-                     { newline, { ignorable-line }, and-then-line } ;
+block-body = given-when-then
+           | when-then
+           | given-then ;
 
-(* When-Then: required When, Then, And* (outcomes) *)
-when-then          = when-line, newline,
-                     { ignorable-line },
-                     then-line,
-                     { newline, { ignorable-line }, and-then-line } ;
+(* Transition blocks contain exactly one When.
+   Invariant blocks contain no When. *)
+
+(* =========================
+   Transition / invariant forms
+   ========================= *)
+
+given-when-then =
+    given-section,
+    when-section,
+    then-section ;
+
+when-then =
+    when-section,
+    then-section ;
+
+given-then =
+    given-section,
+    then-section ;
+
+given-section =
+    given-line, line-end,
+    { and-given-line, line-end } ;
+
+when-section =
+    when-line, line-end ;
+
+(* A then-section contains one Then line, optionally followed by And lines.
+   Semantically, each Then/And clause may be interpreted as:
+   - a state clause
+   - an effect clause
+*)
+
+then-section =
+    then-line
+  | then-line, line-end, and-then-line, { line-end, and-then-line } ;
 
 (* =========================
    Statement lines
    ========================= *)
 
-given-line         = "Given", wsp, { wsp }, [ "that", wsp, { wsp } ], [ "the", wsp, { wsp } ], clause ;
-when-line          = "When",  wsp, { wsp }, [ "the", wsp, { wsp } ], clause ;
-then-line          = "Then",  wsp, { wsp }, [ "the", wsp, { wsp } ], clause ;
+given-line = "Given", req-ws, clause ;
 
-(* Same surface token "And", but position determines whether it's a precondition or outcome. *)
-and-given-line     = "And",   wsp, { wsp }, [ "the", wsp, { wsp } ], clause ;
-and-then-line      = "And",   wsp, { wsp }, [ "the", wsp, { wsp } ], clause ;
+when-line  = "When",  req-ws, clause ;
+
+then-line  = "Then",  req-ws, then-clause ;
+
+and-given-line = "And", req-ws, clause ;
+
+and-then-line  = "And", req-ws, then-clause ;
 
 (* =========================
-   Clause (the triple)
+   Then clauses
    ========================= *)
 
-clause             = entity, wsp, { wsp }, verb-phrase, wsp, { wsp }, entity ;
-
-(* Verb phrase: non-empty text that does not include '[' or newline.
-   Supports multi-word verbs like "is not", "applies to", "signs in", etc.
+(* Syntactically, a then-clause is just a clause.
+   Semantically, a then-clause may be interpreted as:
+   - a state clause
+   - an effect clause
 *)
-verb-phrase        = verb-char, { verb-char } ;
-verb-char          = ? any Unicode character except newline or "[" ? ;
+
+then-clause = clause ;
+
+(* =========================
+   Clause (generalised)
+   ========================= *)
+
+(* A clause contains two or more bracketed entities, with text between them.
+   Optional text may appear before the first entity and after the last.
+
+   Examples:
+   - [basket] has [items]
+   - the [user] taps the [checkout button]
+   - [checkout] applies [promo code] to [basket]
+*)
+
+clause =
+    [ text ],
+    entity,
+    text,
+    entity,
+    { text, entity },
+    [ text ] ;
+
+(* Text is any non-bracket, non-newline content.
+   It connects entities but is not interpreted by the parser. *)
+text = text-char, { text-char } ;
+
+text-char = ? any Unicode character except "[" or "]" or newline ? ;
 
 (* =========================
    Comments
    ========================= *)
 
-comment-line       = { wsp }, "#", { non-newline-char }, newline ;
+(* Comments attach to the block that follows them. *)
+comment-line = opt-ws, "#", { non-newline-char } ;
 
 (* =========================
    Entity
    ========================= *)
 
-entity             = "[", entity-text, "]" ;
+entity = "[", entity-text, "]" ;
 
-entity-text        = { entity-char } ;
-entity-char        = ? any Unicode character except "]" or newline ? ;
+entity-text = { entity-char } ;
+
+entity-char = ? any Unicode character except "]" or newline ? ;
 
 (* =========================
    Whitespace / newlines
    ========================= *)
 
-wsp                = " " | "\t" ;
-newline            = "\n" | "\r\n" ;
+hspace    = " " | "\t" ;
+opt-ws    = { hspace } ;
+req-ws    = hspace, { hspace } ;
 
-non-newline-char   = ? any Unicode character except newline ? ;
+newline   = "\n" | "\r\n" ;
+line-end  = opt-ws, newline ;
+
+non-newline-char = ? any Unicode character except newline ? ;
