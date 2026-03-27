@@ -34,7 +34,7 @@ The goal of Spec is to provide a simple way to express **behavioural specificati
 
 ## Overview
 
-A Spec describes behaviour using scenarios written in natural language.
+A Spec describes behaviour and properties using scenarios written in natural language.
 
 A scenario may describe either:
 
@@ -72,11 +72,11 @@ Then [playback] is [playing]
 
 ## Transitions
 
-A transition scenario describes behaviour that occurs in response to an event.
+A transition scenario describes changes that occur in response to an event.
 
 The `Given` statements describe the **preconditions** that must hold before the event.
 The `When` statement describes the event that triggers the transition.
-The `Then` statements describe the resulting behaviour.
+The `Then` statements describe the resulting state.
 
 Example:
 
@@ -98,7 +98,7 @@ The `Then` statements describe the properties that must hold.
 Example:
 
 ```
-Given the [playback] is [playing]
+Given that [playback] is [playing]
 Then the [pause button] is [visible]
 And the [play button] is [hidden]
 ```
@@ -181,9 +181,9 @@ Then ...
 ## Example
 
 ```
-Given the [playback] is [paused]
+Given that [playback] is [paused]
 When the [user] taps [play button]
-Then the [playback] is [playing]
+Then [playback] is [playing]
 And the [pause button] is [visible]
 And the [play button] is [hidden]
 ```
