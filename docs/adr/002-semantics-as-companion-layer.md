@@ -21,8 +21,8 @@ However, in order to build useful interpreters, additional clarity is needed aro
 
 * relations (e.g. `contains`, `equals`)
 * value constraints (e.g. `plus`, `minus`)
-* dependency handling
-* evaluation rules
+* dependency handling (e.g. how dependencies are determined for clauses, particularly for derived properties, such as whether all referenced entities must be declared in `Given`, or may be inferred)
+* evaluation rules (e.g. how expressions are resolved, how missing inputs are handled, or whether partial evaluation is allowed)
 
 Without this, interpreters must make implicit assumptions about meaning, making those assumptions harder to see, share, or reuse.
 
