@@ -45,14 +45,14 @@ Scenarios are written using:
 
 1. **Given** – the initial state or preconditions
 2. **When** – the event that triggers the transition
-3. **Then** – the resulting state
+3. **Then** – the resulting properties that hold
 
 There are two types of scenarios:
 
 * **Transition scenarios** include a `When` and describe a state transition triggered by an event
 * **Invariant scenarios** do not include a `When` and describe properties that hold whenever the `Given` conditions are true
 
-Each statement contains one or more **entities**:
+Each line contains one or more **entities
 
 ```
 [entity]
@@ -75,8 +75,12 @@ Then [playback] is [playing]
 A transition scenario describes changes that occur in response to an event.
 
 The `Given` statements describe the **preconditions** that must hold before the event.
-The `When` statement describes the event that triggers the transition.
-The `Then` statements describe the resulting state.
+
+The `When` section describes the event that triggers the transition. It contains exactly one `When` line, and may be followed by `And` lines that belong to the event phase.
+
+These `And` lines may describe additional conditions that are only known after the event.
+
+The `Then` statements describe the properties that hold after the scenario.
 
 Example:
 
@@ -86,13 +90,22 @@ When the [user] taps the [pause button]
 Then [playback] is [paused]
 ```
 
+Some conditions may only be known after the event has occurred. These can be expressed using `And` lines within the `When` section.
+
+For example:
+
+```
+When the [user] submits [promo code]
+And [promo code] is [invalid]
+```
+
 ---
 
 ## Invariants
 
 An invariant scenario describes properties that are always true under certain conditions.
 
-The `Given` statements describe the conditions under which they apply.  
+The `Given` statements describe the conditions under which they apply.
 The `Then` statements describe the properties that must hold.
 
 Example:
@@ -136,13 +149,20 @@ A clause contains **two or more entities**, with natural language between them.
 [user] adds [track] to [playlist]
 ```
 
+Clauses may also express value-based constraints:
+
+```
+[basket total] equals [product price]
+[basket total] equals [product price] minus [discount amount]
+```
+
 ---
 
 ### Given
 
 `Given` describes:
 
-* the **preconditions** for a transition
+* the **conditions** for a transition
 * the **conditions** for an invariant
 
 ---
@@ -151,11 +171,17 @@ A clause contains **two or more entities**, with natural language between them.
 
 `When` describes the event that triggers a transition.
 
+A `When` section contains exactly one `When` line, and may be followed by `And` lines that belong to the event phase.
+
+These `And` lines may describe preconditions that can only be evaluated after the event, and must be satisfied for the transition to occur.
+
 ---
 
 ### Then
 
-`Then` describes the resulting state.
+`Then` describes the properties that hold after the scenario.
+
+These properties may describe relationships between entities or express value-based constraints.
 
 ---
 
@@ -166,7 +192,9 @@ A clause contains **two or more entities**, with natural language between them.
 ```
 Given ...
 When ...
+And ...
 Then ...
+And ...
 ```
 
 ### Invariant
@@ -195,3 +223,15 @@ And the [play button] is [hidden]
 The complete grammar of the Spec format is defined using **EBNF**.
 
 See [`spec.ebnf`](./spec.ebnf)
+
+---
+
+## Future Tooling
+
+Future tooling may assist with:
+
+* entity extraction and consistency
+* structural inference
+* validation and interpretation of specifications
+
+These tools are expected to complement the core Spec format, not replace it.

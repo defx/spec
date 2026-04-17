@@ -64,9 +64,13 @@ when-section =
     { and-when-line, line-end } ;
 
 (* A then-section contains one Then line, optionally followed by And lines.
-   Semantically, each Then/And clause may be interpreted as:
-   - a state clause, for example: [basket] contains [product]
-   - an assertion, for example: [basket total] equals [product price]
+
+   Then/And clauses describe properties that hold after the scenario.
+   These may express relationships between entities or value-based constraints.
+
+   Examples:
+   - [basket] contains [product]
+   - [basket total] equals [product price]
 *)
 then-section =
     then-line
