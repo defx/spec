@@ -20,49 +20,54 @@ block =
 
 title-line = "Scenario:", req-ws, { non-newline-char } ;
 
-(* A block is either:
-   - a transition block: Given* + When + Then*
-   - an event-first transition block: When + Then*
-   - an invariant block: Given* + Then*
-*)
-
 block-body = given-when-then
            | when-then
            | given-then ;
 
-(* Transition blocks contain exactly one When.
-   Invariant blocks contain no When. *)
-
-(* =========================
-   Transition / invariant forms
-   ========================= *)
-
+(* Transition block with preconditions, an event phase, and outcomes. *)
 given-when-then =
     given-section,
     when-section,
     then-section ;
 
+(* Transition block with no explicit preconditions. *)
 when-then =
     when-section,
     then-section ;
 
+(* Invariant block with conditions and required properties, but no event phase. *)
 given-then =
     given-section,
     then-section ;
 
+(*
+A given-section contains exactly one Given line, optionally followed by And lines that belong to the precondition phase.
+*)
 given-section =
     given-line, line-end,
     { and-given-line, line-end } ;
 
+(* A when-section contains exactly one When line, optionally followed by
+   And lines that belong to the event phase.
+
+   The When line describes the triggering event.
+
+   And lines may describe preconditions that can only be evaluated after the
+   event, and which determine whether the transition takes place.
+
+   Example:
+   When the [user] submits [promo code]
+   And [promo code] is [invalid]
+*)
 when-section =
-    when-line, line-end ;
+    when-line, line-end,
+    { and-when-line, line-end } ;
 
 (* A then-section contains one Then line, optionally followed by And lines.
    Semantically, each Then/And clause may be interpreted as:
-   - a state clause
-   - an effect clause
+   - a state clause, for example: [basket] contains [product]
+   - an assertion, for example: [basket total] equals [product price]
 *)
-
 then-section =
     then-line
   | then-line, line-end, and-then-line, { line-end, and-then-line } ;
@@ -73,24 +78,28 @@ then-section =
 
 given-line = "Given", req-ws, clause ;
 
-when-line  = "When",  req-ws, clause ;
+when-line  = "When",  req-ws, when-clause ;
 
 then-line  = "Then",  req-ws, then-clause ;
 
 and-given-line = "And", req-ws, clause ;
 
+and-when-line  = "And", req-ws, when-clause ;
+
 and-then-line  = "And", req-ws, then-clause ;
+
+(* =========================
+   When clauses
+   ========================= *)
+
+(* A when-clause is a clause interpreted in the event phase. *)
+when-clause = clause ;
 
 (* =========================
    Then clauses
    ========================= *)
 
-(* Syntactically, a then-clause is just a clause.
-   Semantically, a then-clause may be interpreted as:
-   - a state clause
-   - an effect clause
-*)
-
+(* A then-clause is a clause interpreted in the outcome phase. *)
 then-clause = clause ;
 
 (* =========================
@@ -101,9 +110,11 @@ then-clause = clause ;
    Optional text may appear before the first entity and after the last.
 
    Examples:
-   - [basket] has [items]
+   - [basket] contains [product]
    - the [user] taps the [checkout button]
-   - [checkout] applies [promo code] to [basket]
+   - [user] submits [promo code]
+   - [basket total] equals [product price]
+   - [basket total] equals [product price] minus [discount amount]
 *)
 
 clause =
