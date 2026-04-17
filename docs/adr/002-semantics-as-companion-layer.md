@@ -24,7 +24,7 @@ However, in order to build useful interpreters, additional clarity is needed aro
 * dependency handling
 * evaluation rules
 
-Without this, interpreters must make implicit assumptions, leading to inconsistency.
+Without this, interpreters must make implicit assumptions about meaning, making those assumptions harder to see, share, or reuse.
 
 At the same time, embedding semantics directly into the Spec language would:
 
@@ -79,13 +79,15 @@ Semantic profiles can evolve independently:
 
 ---
 
-### Improves interpreter consistency
+### Improves interpreter clarity and reuse
 
 Profiles provide a shared reference for:
 
 * supported relations
 * value expressions
 * dependency expectations
+
+Profiles make semantic assumptions visible and portable, rather than embedded within individual interpreters.
 
 This reduces ambiguity without constraining the language.
 
