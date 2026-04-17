@@ -139,21 +139,24 @@ Examples:
 
 ### Clauses
 
-A clause describes relationships between entities.
+A clause describes relationships or properties involving entities.
 
-A clause contains **two or more entities**, with natural language between them.
+A clause contains **one or more entities**, with natural language around them.
 
 ```
 [playback] is [playing]
 [user] taps [play button]
 [user] adds [track] to [playlist]
+[basket count] equals 1
 ```
 
 Clauses may also express value-based constraints:
 
 ```
 [basket total] equals [product price]
+[basket total] equals 0
 [basket total] equals [product price] minus [discount amount]
+[basket total] equals [product price] multiplied by 2
 ```
 
 ---

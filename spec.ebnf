@@ -4,7 +4,8 @@
 
 spec-file =
     block,
-    { empty-line, block } ;
+    { empty-line, block },
+    [ line-end ] ;
 
 (* A blank line is a full empty line. *)
 empty-line = line-end, line-end ;
@@ -110,7 +111,7 @@ then-clause = clause ;
    Clause (generalised)
    ========================= *)
 
-(* A clause contains two or more bracketed entities, with text between them.
+(* A clause contains one or more bracketed entities, with text between them.
    Optional text may appear before the first entity and after the last.
 
    Examples:
@@ -118,13 +119,12 @@ then-clause = clause ;
    - the [user] taps the [checkout button]
    - [user] submits [promo code]
    - [basket total] equals [product price]
+   - [basket count] equals 1
    - [basket total] equals [product price] minus [discount amount]
 *)
 
 clause =
     [ text ],
-    entity,
-    text,
     entity,
     { text, entity },
     [ text ] ;
@@ -148,7 +148,7 @@ comment-line = opt-ws, "#", { non-newline-char } ;
 
 entity = "[", entity-text, "]" ;
 
-entity-text = { entity-char } ;
+entity-text = entity-char, { entity-char } ;
 
 entity-char = ? any Unicode character except "]" or newline ? ;
 
