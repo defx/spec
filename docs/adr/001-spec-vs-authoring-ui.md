@@ -35,8 +35,9 @@ This means:
 
 * the core Spec format should stay lightweight and readable
 * specifications do not need to carry every inferred structural relationship explicitly
-* interpreters may define the relations and operators they support
-* authoring tools may infer, surface, and help maintain structural or semantic relationships that are not fully explicit in the raw text
+* interpreters may define the relations, operators, terms, and domain entities they support, typically with reference to one or more semantic profiles
+* authoring tools may load semantic profiles and use them to infer, surface, and help maintain structural or semantic relationships that are not fully explicit in the raw text
+* authoring tool inferences are advisory only unless accepted by the author into the raw specification
 
 The authoring UI is therefore treated as an important assistive layer, not as part of the core language.
 
@@ -63,6 +64,7 @@ To keep this separation healthy, any authoring or interpreter tooling should fol
 * inferred structure should be visible to the author
 * inferred structure should be editable by the author
 * the raw specification should remain the primary authored artifact
+* semantic profiles should act as domain-specific extensions to the core language, not as a replacement for the raw specification
 * tooling should assist rather than silently redefine the meaning of the specification
 
 In other words, the UI may propose interpretations, but it should not hide them.
@@ -77,6 +79,8 @@ Examples in this repository should aim to be:
 * not overloaded with incidental detail purely to satisfy hypothetical interpreter needs
 
 Where ambiguity exists but can reasonably be resolved by future authoring tools, examples do not need to force all disambiguation directly into the text.
+
+As the repository evolves, it is worth watching which examples benefit from accompanying semantic profiles for validation, comparison, or interpreter guidance, without requiring that of every example from the outset.
 
 ## Alternatives considered
 

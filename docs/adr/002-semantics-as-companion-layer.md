@@ -1,4 +1,4 @@
-# ADR 002: Semantic Profiles as a Companion Layer
+# ADR 002: Semantic Profiles as a Domain Extension Layer
 
 ## Status
 
@@ -36,11 +36,12 @@ At the same time, embedding semantics directly into the Spec language would:
 
 ## Decision
 
-We introduce the concept of **semantic profiles** as a companion layer to Spec.
+We introduce the concept of **semantic profiles** as a domain extension layer for Spec.
 
 * Semantic profiles are **not part of the Spec language or grammar**
 * They are **optional, interpreter-facing artifacts**
 * They may be defined and maintained **within the same repository** as Spec
+* They extend the core language with domain-specific entities, operators, terms, and interpretation rules without changing the underlying grammar
 
 Interpreters:
 
@@ -48,10 +49,18 @@ Interpreters:
 * may define their own profiles
 * may choose how strictly to enforce them
 
+Authoring tools:
+
+* may load one or more semantic profiles while assisting authors
+* may use profiles to surface inconsistencies, unsupported operators, or likely structural issues in a spec
+* should treat such inferences as advisory unless the author accepts changes into the raw specification
+
 Examples may include both:
 
 * a `.spec` file (structure)
 * a semantic profile file (meaning)
+
+Whether a repository example should include a semantic profile depends on its purpose. Readability-focused examples may stand alone, while examples intended as validation or interpreter reference points may benefit from an accompanying profile.
 
 ---
 
@@ -62,7 +71,7 @@ Examples may include both:
 This preserves a clear boundary:
 
 * Spec → structure
-* Semantic profiles → meaning
+* Semantic profiles → domain-specific meaning and language extensions
 * Interpreters → execution
 
 The core language remains simple and stable.
@@ -83,6 +92,7 @@ Semantic profiles can evolve independently:
 
 Profiles provide a shared reference for:
 
+* domain-specific entities and terms
 * supported relations
 * value expressions
 * dependency expectations
@@ -187,7 +197,7 @@ Future work may include:
 
 ## Summary
 
-Semantic profiles provide a structured way to define meaning without expanding the Spec language.
+Semantic profiles provide a structured way to extend Spec for particular domains without expanding the core grammar.
 
 They allow the project to balance:
 
