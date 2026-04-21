@@ -9,6 +9,8 @@ It is intended for both:
 
 The goal is not to introduce new rules, but to help you use the language well.
 
+The guide focuses on how to write raw `.spec` files well. Where deeper structure matters, such as roles, properties, or canonical operators, that structure should be made durable in semantic profiles rather than implied only by wording.
+
 ---
 
 # 1. Core Principles
@@ -99,7 +101,7 @@ Good:
 Includes an event.
 
 ```
-Given [basket] is empty
+Given [basket] is [empty]
 
 When the [user] adds [product]
 
@@ -149,7 +151,7 @@ Inputs define what a property depends on.
 
 ```
 Given [product price]
-And [discount amount]
+And [discount]
 ```
 
 These do not assert relationships—they declare availability.
@@ -188,9 +190,9 @@ Good:
 
 ```
 Given [product price]
-And [discount amount]
+And [discount]
 
-Then [subtotal] equals [product price] minus [discount amount]
+Then [subtotal] equals [product price] minus [discount]
 ```
 
 Here, `Given` clearly defines the inputs required for the derived property.
@@ -235,12 +237,13 @@ Then [basket] contains [product]
 
 A clause:
 
-* contains at least two entities
-* connects them with natural language
+* contains one or more entities
+* uses natural language around those entities
 
 ```
 [basket] contains [product]
 [basket total] equals [product price]
+[basket quantity] equals 1
 ```
 
 ---
@@ -251,10 +254,11 @@ Choose words that can be reused across scenarios:
 
 * contains
 * equals
-* includes
 * is
 
 Avoid inventing variations.
+
+If different terms really do represent different concepts, make that distinction explicit in the semantic profile.
 
 ---
 
@@ -282,7 +286,7 @@ Examples:
 
 ```
 [basket total] equals [product price]
-[basket total] equals [product price] minus [discount amount]
+[basket total] equals [product price] minus [discount]
 ```
 
 These are **assertion-style clauses**.
@@ -305,13 +309,13 @@ Avoid symbolic expressions.
 Bad:
 
 ```
-[basket total] = [product price] - [discount amount]
+[basket total] = [product price] - [discount]
 ```
 
 Good:
 
 ```
-[basket total] equals [product price] minus [discount amount]
+[basket total] equals [product price] minus [discount]
 ```
 
 ---
@@ -321,17 +325,17 @@ Good:
 Bad:
 
 ```
-[basket total] equals [product price] minus [discount amount] plus [tax]
+[basket total] equals [product price] minus [discount] plus [tax]
 ```
 
 Good:
 
 ```
 Given [product price]
-And [discount amount]
+And [discount]
 And [tax]
 
-Then [subtotal] equals [product price] minus [discount amount]
+Then [subtotal] equals [product price] minus [discount]
 And [basket total] equals [subtotal] plus [tax]
 ```
 
@@ -348,9 +352,9 @@ Example:
 
 ```
 Given [product price]
-And [discount amount]
+And [discount]
 
-Then [subtotal] equals [product price] minus [discount amount]
+Then [subtotal] equals [product price] minus [discount]
 ```
 
 This makes dependencies explicit and avoids incidental conditions.
@@ -366,16 +370,16 @@ Less clear:
 ```
 Given [product price]
 
-Then [subtotal] equals [product price] minus [discount amount]
+Then [subtotal] equals [product price] minus [discount]
 ```
 
 Clear:
 
 ```
 Given [product price]
-And [discount amount]
+And [discount]
 
-Then [subtotal] equals [product price] minus [discount amount]
+Then [subtotal] equals [product price] minus [discount]
 ```
 
 This helps:
@@ -394,10 +398,10 @@ Example:
 
 ```
 Given [item total]
-And [discount amount]
+And [discount]
 And [delivery fee]
 
-Then [subtotal] equals [item total] minus [discount amount]
+Then [subtotal] equals [item total] minus [discount]
 And [order total] equals [subtotal] plus [delivery fee]
 ```
 
@@ -407,10 +411,10 @@ Less clear:
 
 ```
 Given [item total]
-And [discount amount]
+And [discount]
 And [delivery fee]
 
-Then [order total] equals [item total] minus [discount amount] plus [delivery fee]
+Then [order total] equals [item total] minus [discount] plus [delivery fee]
 ```
 
 Prefer intermediate derived properties when they make the relationship easier to read, explain, and interpret.
@@ -476,20 +480,51 @@ Entities should be:
 
 Different names imply different entities.
 
+Prefer one canonical term per concept within a specification or profile.
+
+For example, avoid mixing:
+
+* `count` and `quantity` for the same idea
+* `discount` and `discount amount` unless they are intentionally different concepts
+
+If two similar terms are both needed, their distinction should be captured explicitly in the semantic profile.
+
 ---
 
 ## 6.3 Use role-based naming
 
-When you need distinction, use roles:
+When you need distinction, role-based naming can be useful:
 
 ```
 [existing product]
 [new product]
 ```
 
+At the grammar layer, these are still just entities.
+
+If a role-based interpretation matters, it should be captured in the semantic profile rather than left as an implicit naming convention.
+
+Assistive tools may suggest that names like these look role-qualified, but that interpretation should remain advisory until accepted by the author and reflected in the profile.
+
 ---
 
-## 6.4 Avoid implicit meaning
+## 6.4 Property-style naming
+
+Property-style names can also be useful:
+
+```
+[product quantity]
+[product price]
+[basket total]
+```
+
+Again, these are still just entities in the raw spec text.
+
+If a tool or author wants to treat them as properties of a base entity, that structure should be made explicit in the semantic profile.
+
+---
+
+## 6.5 Avoid implicit meaning
 
 Bad:
 
@@ -507,7 +542,7 @@ Good:
 
 ---
 
-## 6.5 No IDs or variables
+## 6.6 No IDs or variables
 
 Avoid:
 
@@ -599,7 +634,7 @@ Good:
 # 8. A Well-Formed Example
 
 ```
-Given [basket] is empty
+Given [basket] is [empty]
 And [product] has [price]
 
 When the [user] adds [product]
@@ -620,4 +655,4 @@ A good spec should be:
 
 * easy to read
 * hard to misinterpret
-* ready for machines to understand
+* ready for tooling and semantic profiles to build on
