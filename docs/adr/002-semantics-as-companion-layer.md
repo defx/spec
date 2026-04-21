@@ -110,11 +110,38 @@ Examples can demonstrate both structure and meaning:
 ```
 examples/shopping-basket/
   shopping-basket.spec
-  shopping-basket.semantics
+  shopping-basket.semantics.yml
   README.md
 ```
 
 This makes the system easier to understand and adopt.
+
+---
+
+### Supports a structured naming model
+
+Semantic profiles can also capture structure that is only implicit in bracketed references within the raw spec text.
+
+At the grammar layer, references such as `[product]`, `[existing product]`, and `[product quantity]` are all simply entities. The semantic layer may classify them more precisely to improve interpretation and validation.
+
+For example, a semantic profile may distinguish between:
+
+* base entities, such as `basket`, `product`, or `discount`
+* role-qualified references, such as `existing product` or `new product`
+* property references, such as `product quantity`, `product price`, or `basket total`
+
+This allows the raw `.spec` file to remain simple while giving tools a more explicit model of what those references mean.
+
+Authoring guidance may describe general heuristics for identifying such patterns, but those heuristics are not themselves semantic definitions. For example, an assistive tool may notice that `existing product` appears to be a role-qualified form of `product`, or that `product quantity` appears to be a property reference. These interpretations should be surfaced as suggestions for the author to confirm or reject.
+
+Once accepted, that structure should be captured explicitly in the semantic profile so it becomes durable, visible, and portable rather than remaining a local tool inference.
+
+This also supports the idea of multiple semantic profiles with different scopes. For example:
+
+* a specification-level profile may capture project-specific entities, roles, and properties
+* a reusable shared profile may capture operators, arithmetic expressions, or other conventions that apply across multiple specifications
+
+This separation allows tools to combine general reusable semantics with project-specific meaning while keeping the core grammar unchanged.
 
 ---
 
