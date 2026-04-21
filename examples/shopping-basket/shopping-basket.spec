@@ -92,5 +92,6 @@ Then [basket total] equals [product price]
 
 Scenario: Basket total reflects discount when a promo code is applied
 
-Given [basket] has [discount]
-Then [basket total] equals [original total] minus [discount amount]
+Given [basket] contains [product]
+And [basket] has [discount]
+Then [basket total] equals [product price] minus [discount]

@@ -1,0 +1,80 @@
+# Provisional declarative semantic profile for the shopping-basket example.
+# This file is exploratory and intended to make domain assumptions visible.
+
+profile: shopping-basket
+version: 0
+
+domain:
+  description: Commerce-style basket behaviour with derived totals and counts.
+
+entities:
+  - basket
+  - product
+  - existing product
+  - new product
+  - basket count
+  - basket total
+  - product quantity
+  - product price
+  - existing product price
+  - new product price
+  - promo code
+  - discount
+  - checkout
+  - checkout button
+  - promo code error
+  - user
+  - quantity
+
+terms:
+  - empty
+  - valid
+  - invalid
+  - visible
+  - enabled
+  - disabled
+  - started
+
+operators:
+  - name: is
+    category: relation
+  - name: equals
+    category: relation
+  - name: contains
+    category: relation
+  - name: does not contain
+    category: relation
+  - name: has
+    category: relation
+  - name: uses
+    category: relation
+  - name: adds
+    category: event
+  - name: decreases
+    category: event
+  - name: removes
+    category: event
+  - name: submits
+    category: event
+  - name: starts
+    category: event
+
+expressions:
+  unary: []
+  binary:
+    - plus
+    - minus
+    - multiplied by
+
+derived-values:
+  - name: basket count
+    description: Total quantity of products currently present in the basket.
+  - name: basket total
+    description: Sum of product prices after any applied discounts.
+  - name: product quantity
+    description: Quantity of a specific product currently present in the basket.
+
+expectations:
+  - The basket count reflects the sum of product quantities.
+  - The basket total may be expressed using arithmetic over prices and discounts.
+  - Promo-code validity affects whether a discount is applied.

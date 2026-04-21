@@ -1,240 +1,117 @@
 # Spec
 
-**Spec** is a lightweight format for describing software behaviour in a way that is readable by humans and interpretable by machines.
+**Spec** is a working project exploring a lightweight ecosystem for behavioural specification.
 
-Spec builds on the familiar **Given / When / Then** style popularised by Gherkin, but introduces a formally defined structure that allows specifications to be reliably parsed and analysed by software.
+At the centre of the project is a minimal `.spec` format for writing scenarios in natural language with explicit structure. Around that core, the project also explores semantic profiles, examples, and tooling patterns that make those specifications increasingly interpretable by machines within a chosen domain.
 
-The goal of Spec is to provide a simple way to express **behavioural specifications** while preserving natural language and making the structure explicit enough for tools to understand.
+`Spec` is currently just a placeholder project name.
 
----
+## What This Repository Contains
 
-## Table of Contents
+This repository is intentionally broader than the `.spec` file format alone.
 
-* [Overview](#overview)
-* [Transitions](#transitions)
-* [Invariants](#invariants)
-* [Goals](#goals)
-* [Core Concepts](#core-concepts)
+It currently includes:
 
-  * [Entities](#entities)
-  * [Clauses](#clauses)
-  * [Given](#given)
-  * [When](#when)
-  * [Then](#then)
-* [Writing Style](#writing-style)
-* [Scenario Structure](#scenario-structure)
-* [Spec and Gherkin](#spec-and-gherkin)
-* [Comments](#comments)
-* [Multiple Scenarios](#multiple-scenarios)
-* [Formal Grammar](#formal-grammar)
-* [Example](#example)
-* [Future Tooling](#future-tooling)
+* a formal grammar for `.spec` files
+* ADRs describing the evolving design
+* example specifications
+* an example semantic profile showing how domain-specific language can be layered on top of the core format
 
----
+Taken together, these pieces describe an ecosystem rather than just a grammar.
 
-## Overview
+## Project Layers
 
-A Spec describes behaviour and properties using scenarios written in natural language.
+### 1. Core grammar
 
-A scenario may describe either:
+The core grammar defines the structure of a `.spec` file:
 
-1. a **transition** in a system
-2. an **invariant** that is always true under certain conditions
+* scenario blocks
+* `Given / When / Then` sections
+* bracketed entities such as `[basket]` or `[product]`
+* natural-language clauses around those entities
 
-Scenarios are written using:
+The grammar is intentionally lightweight. It defines structure, not full domain meaning.
 
-1. **Given** – the initial state or preconditions
-2. **When** – the event that triggers the transition
-3. **Then** – the resulting properties that hold
+See [grammar/README.md](/grammar/README.md) and [grammar/spec.ebnf](/grammar/spec.ebnf).
 
-There are two types of scenarios:
+### 2. Semantic profiles
 
-* **Transition scenarios** include a `When` and describe a state transition triggered by an event
-* **Invariant scenarios** do not include a `When` and describe properties that hold whenever the `Given` conditions are true
+Semantic profiles extend the usable language for a specific domain without changing the core grammar.
 
-Each line contains one or more **entities
+They may define things such as:
 
-```
-[entity]
-```
+* domain-specific entities
+* operators and terms
+* value expressions
+* interpretation rules and expectations
 
-Entities are written in square brackets so they can be reliably identified, while the rest of the sentence remains natural language.
+For example, a shopping-basket profile may declare operators like `contains` or `equals`, terms like `empty` or `discount`, and expectations around derived values such as basket totals.
 
-For example:
+Profiles are optional at the language level, but they are an important part of making specifications portable and machine-interpretable within a domain.
 
-```
-Given that [playback] is [paused]
-When the [user] taps [play button]
-Then [playback] is [playing]
-```
+### 3. Examples
 
----
+The `examples/` directory shows how the layers fit together in practice.
 
-## Transitions
+An example folder may contain:
 
-A transition scenario describes changes that occur in response to an event.
+* a `.spec` file showing the raw authored structure
+* a `.semantics` file showing the domain extension layer used with that spec
 
-The `Given` statements describe the **preconditions** that must hold before the event.
+If an example folder includes a semantic profile, it is intended to be read as a grammar-plus-profile example rather than a grammar-only example.
 
-The `When` section describes the event that triggers the transition. It contains exactly one `When` line, and may be followed by `And` lines that belong to the event phase.
+### 4. Tooling
 
-These `And` lines may describe additional conditions that are only known after the event.
+Future tooling may use the grammar and any selected semantic profiles to:
 
-The `Then` statements describe the properties that hold after the scenario.
+* extract and list entities
+* highlight inconsistent naming
+* surface unsupported operators or terms
+* validate scenario structure
+* assist interpretation of domain-specific behaviour
 
-Example:
+Authoring tools are intended to assist authors while keeping the raw `.spec` file as the primary authored artifact.
 
-```
-Given that [playback] is [playing]
-When the [user] taps the [pause button]
-Then [playback] is [paused]
+## Repository Structure
+
+```text
+grammar/
+  README.md
+  spec.ebnf
+examples/
+  shopping-basket/
+    shopping-basket.spec
+    shopping-basket.semantics.yml
+docs/
+  adr/
+    001-spec-vs-authoring-ui.md
+    002-semantics-as-companion-layer.md
 ```
 
-Some conditions may only be known after the event has occurred. These can be expressed using `And` lines within the `When` section.
+## Current Example
 
-For example:
+The shopping basket example currently includes both:
 
-```
-When the [user] submits [promo code]
-And [promo code] is [invalid]
-```
+* [shopping-basket.spec](/examples/shopping-basket/shopping-basket.spec)
+* [shopping-basket.semantics](/examples/shopping-basket/shopping-basket.semantics.yml)
 
----
+This is the first concrete step toward the semantic-profile direction described in ADR 002.
 
-## Invariants
+## Design Notes
 
-An invariant scenario describes properties that are always true under certain conditions.
+The current design direction is:
 
-The `Given` statements describe the conditions under which they apply.
-The `Then` statements describe the properties that must hold.
+* keep the core grammar small and stable
+* allow domain-specific language to be layered in through semantic profiles
+* use examples and ADRs to evolve the model before standardising too early
 
-Example:
+Relevant ADRs:
 
-```
-Given that [playback] is [playing]
-Then the [pause button] is [visible]
-And the [play button] is [hidden]
-```
+* [ADR 001](/docs/adr/001-spec-vs-authoring-ui.md): authoring assistance and lightweight core language
+* [ADR 002](/docs/adr/002-semantics-as-companion-layer.md): semantic profiles as a domain extension layer
 
----
+## Status
 
-## Core Concepts
+This repository is still exploratory.
 
-### Entities
-
-Entities represent things in the system.
-
-Examples:
-
-```
-[user]
-[playback]
-[play button]
-[pause button]
-[track]
-[playlist]
-```
-
----
-
-### Clauses
-
-A clause describes relationships or properties involving entities.
-
-A clause contains **one or more entities**, with natural language around them.
-
-```
-[playback] is [playing]
-[user] taps [play button]
-[user] adds [track] to [playlist]
-[basket count] equals 1
-```
-
-Clauses may also express value-based constraints:
-
-```
-[basket total] equals [product price]
-[basket total] equals 0
-[basket total] equals [product price] minus [discount amount]
-[basket total] equals [product price] multiplied by 2
-```
-
----
-
-### Given
-
-`Given` describes:
-
-* the **conditions** for a transition
-* the **conditions** for an invariant
-
----
-
-### When
-
-`When` describes the event that triggers a transition.
-
-A `When` section contains exactly one `When` line, and may be followed by `And` lines that belong to the event phase.
-
-These `And` lines may describe preconditions that can only be evaluated after the event, and must be satisfied for the transition to occur.
-
----
-
-### Then
-
-`Then` describes the properties that hold after the scenario.
-
-These properties may describe relationships between entities or express value-based constraints.
-
----
-
-## Scenario Structure
-
-### Transition
-
-```
-Given ...
-When ...
-And ...
-Then ...
-And ...
-```
-
-### Invariant
-
-```
-Given ...
-Then ...
-```
-
----
-
-## Example
-
-```
-Given that [playback] is [paused]
-When the [user] taps [play button]
-Then [playback] is [playing]
-And the [pause button] is [visible]
-And the [play button] is [hidden]
-```
-
----
-
-## Formal Grammar
-
-The complete grammar of the Spec format is defined using **EBNF**.
-
-See [`spec.ebnf`](./spec.ebnf)
-
----
-
-## Future Tooling
-
-Future tooling may assist with:
-
-* entity extraction and consistency
-* structural inference
-* validation and interpretation of specifications
-
-These tools are expected to complement the core Spec format, not replace it.
+The core grammar is concrete, but the semantic-profile layer is still being shaped through ADRs and examples. The goal at this stage is to make the layers and intent clear to newcomers while leaving room for the design to evolve.
