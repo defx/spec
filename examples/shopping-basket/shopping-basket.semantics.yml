@@ -1,60 +1,28 @@
-# Provisional declarative semantic profile for the shopping-basket example.
-# This file is exploratory and intended to make domain assumptions visible.
+# Provisional semantic profile for the shopping-basket example.
+# This file captures a sparse, machine-proposed structural interpretation
+# of the language used in the example spec.
 
 profile: shopping-basket
 version: 0
-description: Commerce-style basket behaviour with totals, quantities, discounts, and checkout state.
+description: Machine-proposed structural interpretation of the shopping-basket example.
 
 entities:
   - name: basket
-    description: A shopping basket containing selected products.
+    properties:
+      - name: count
+      - name: total
   - name: product
-    description: A product that may be added to or removed from a basket.
-  - name: existing product
-    description: A product already present in the basket before the scenario begins.
-  - name: new product
-    description: A product not yet present in the basket before the scenario begins.
-  - name: basket count
-    description: The total quantity of products currently in the basket.
-  - name: basket total
-    description: The monetary total for the basket after discounts.
-  - name: product quantity
-    description: The quantity of a specific product currently in the basket.
-  - name: product price
-    description: The price of a product.
-  - name: existing product price
-    description: The price of the existing product.
-  - name: new product price
-    description: The price of the new product.
+    roles:
+      - name: existing
+      - name: new
+    properties:
+      - name: quantity
+      - name: price
   - name: promo code
-    description: A code that may affect basket pricing.
   - name: discount
-    description: A reduction applied to the basket total.
-  - name: discount amount
-    description: The monetary value of a discount.
+    properties:
+      - name: amount
   - name: checkout
-    description: The checkout process for the current basket.
   - name: checkout button
-    description: A control used to begin checkout.
   - name: promo code error
-    description: Feedback shown when a promo code is invalid.
   - name: user
-    description: The actor interacting with the basket.
-  - name: quantity
-    description: A quantity value associated with a product.
-
-terms:
-  - name: empty
-    description: Containing no products.
-  - name: valid
-    description: Accepted and applicable.
-  - name: invalid
-    description: Rejected or not applicable.
-  - name: visible
-    description: Shown to the user.
-  - name: enabled
-    description: Available for interaction.
-  - name: disabled
-    description: Not available for interaction.
-  - name: started
-    description: Begun but not necessarily completed.

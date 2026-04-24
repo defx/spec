@@ -17,11 +17,12 @@ Spec defines a lightweight behavioural specification format with:
 
 The language intentionally defines **structure only**, not meaning.
 
-However, in order to build useful interpreters, additional clarity is needed around:
+However, in order to build useful interpreters and authoring assistance, additional clarity is needed around:
 
-* domain-specific entities (e.g. `basket total`, `promo code error`)
-* domain-specific terms (e.g. `empty`, `valid`, `disabled`)
-* the intended meaning of those domain words and references
+* which domain references appear to be base entities
+* which names appear to be role-qualified forms of those entities
+* which names appear to be properties of those entities
+* which of those machine inferences have been accepted by a human
 
 Without this, interpreters must make implicit assumptions about meaning, making those assumptions harder to see, share, or reuse.
 
@@ -35,12 +36,15 @@ At the same time, embedding semantics directly into the Spec language would:
 
 ## Decision
 
-We introduce the concept of **semantic profiles** as a domain extension layer for Spec.
+We introduce the concept of **semantic profiles** as a companion layer for Spec.
 
 * Semantic profiles are **not part of the Spec language or grammar**
 * They are **optional, interpreter-facing artifacts**
 * They may be defined and maintained **within the same repository** as Spec
-* They extend the core language with domain-specific entities and terms without changing the underlying grammar
+* They capture a sparse structural interpretation of domain language used in one or more specs
+* They are intended to be **machine-proposed and human-reviewed**
+* They may record base entities together with optional roles, properties, and clarifying descriptions
+* They should remain lightweight and should not attempt to encode execution semantics or a full state model
 
 Interpreters:
 
@@ -57,7 +61,7 @@ Authoring tools:
 Examples may include both:
 
 * a `.spec` file (structure)
-* a semantic profile file (meaning)
+* a semantic profile file (reviewable structural interpretation)
 
 Whether a repository example should include a semantic profile depends on its purpose. Readability-focused examples may stand alone, while examples intended as validation or interpreter reference points may benefit from an accompanying profile.
 
@@ -70,7 +74,7 @@ Whether a repository example should include a semantic profile depends on its pu
 This preserves a clear boundary:
 
 * Spec → structure
-* Semantic profiles → domain-specific meaning and language extensions
+* Semantic profiles → reviewable structural interpretation of domain language
 * Interpreters → execution
 
 The core language remains simple and stable.
@@ -87,13 +91,13 @@ Semantic profiles can evolve independently:
 
 ---
 
-### Improves interpreter clarity and reuse
+### Improves machine-assisted interpretation and reuse
 
 Profiles provide a shared reference for:
 
-* domain-specific entities and terms
-* concise descriptions of domain meaning
-* durable naming choices accepted by authors
+* accepted base entities
+* accepted roles and properties inferred from the raw spec text
+* clarifications that are worth keeping durable
 
 Profiles make semantic assumptions visible and portable, rather than embedded within individual interpreters.
 
@@ -118,26 +122,26 @@ This makes the system easier to understand and adopt.
 
 ### Supports a structured naming model
 
-Semantic profiles can also capture structure that is only implicit in bracketed references within the raw spec text.
+Semantic profiles can also capture structure that is only implicit in how bracketed references are used within the raw spec text.
 
-At the grammar layer, references such as `[product]`, `[existing product]`, and `[product quantity]` are all simply entities. The semantic layer may classify them more precisely to improve interpretation and validation.
+At the grammar layer, only bracketed text is treated as an entity reference. Phrases such as `existing [product]` or `[product] quantity` still rely on ordinary surrounding language, even though tools may classify them more precisely to improve interpretation and validation.
 
 For example, a semantic profile may distinguish between:
 
 * base entities, such as `basket`, `product`, or `discount`
-* role-qualified references, such as `existing product` or `new product`
-* property references, such as `product quantity`, `product price`, or `basket total`
+* role-qualified references, such as `existing [product]` or `new [product]`
+* property references, such as `[product] quantity`, `[product] price`, or `[basket] total`
 
-This allows the raw `.spec` file to remain simple while giving tools a more explicit model of what those references mean.
+This allows the raw `.spec` file to remain simple while giving tools a more explicit model of how those references are currently being interpreted.
 
-Authoring guidance may describe general heuristics for identifying such patterns, but those heuristics are not themselves semantic definitions. For example, an assistive tool may notice that `existing product` appears to be a role-qualified form of `product`, or that `product quantity` appears to be a property reference. These interpretations should be surfaced as suggestions for the author to confirm or reject.
+Authoring guidance may describe general heuristics for identifying such patterns, but those heuristics are not themselves semantic definitions. For example, an assistive tool may notice that `existing [product]` appears to be a role-qualified form of `product`, or that `[product] quantity` appears to be a property reference. These interpretations should be surfaced as suggestions for the author to confirm or reject.
 
 Once accepted, that structure should be captured explicitly in the semantic profile so it becomes durable, visible, and portable rather than remaining a local tool inference.
 
 This also supports the idea of multiple semantic profiles with different scopes. For example:
 
 * a specification-level profile may capture project-specific entities, roles, and properties
-* a reusable shared profile may later capture cross-domain conventions that apply across multiple specifications
+* a reusable shared profile may later capture cross-domain conventions that prove worth normalising separately
 
 This separation allows tools to combine general reusable semantics with project-specific meaning while keeping the core grammar unchanged.
 
@@ -160,8 +164,8 @@ This can happen incrementally, based on real-world use.
 ### Positive
 
 * Spec remains minimal and readable
-* Interpreters have a clearer target for implementation
-* AI tools have more structured context for reasoning
+* Machines have a reviewable record of accepted structural interpretation
+* AI tools have more stable context for repeated reasoning
 * Multiple domains can define their own semantics
 
 ---
@@ -209,7 +213,7 @@ Rejected because:
 ## Notes
 
 * Semantic profiles should remain **declarative**, not executable
-* They should describe meaning, not implementation
+* They should capture accepted interpretation, not implementation
 * They must not redefine the structure of Spec itself
 * The minimal useful profile format should stay small until a stronger need emerges
 
@@ -218,17 +222,18 @@ Future work may include:
 * defining a minimal profile format
 * creating example profiles (e.g. commerce, finance)
 * identifying whether any cross-domain conventions are worth standardising separately
+* determining whether semantic profiles are a useful long-term input to deeper translation layers such as state-machine generation
 
 ---
 
 ## Summary
 
-Semantic profiles provide a structured way to extend Spec for particular domains without expanding the core grammar.
+Semantic profiles provide a structured way to capture and review machine interpretation of domain language without expanding the core grammar.
 
 They allow the project to balance:
 
 * simplicity (in the language)
-* flexibility (across domains)
-* and consistency (across interpreters)
+* flexibility (in machine interpretation)
+* and consistency (across tools and iterations)
 
 while keeping the core philosophy intact.

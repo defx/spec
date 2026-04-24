@@ -36,17 +36,18 @@ See [grammar/README.md](/grammar/README.md) and [grammar/spec.ebnf](/grammar/spe
 
 ### 2. Semantic profiles
 
-Semantic profiles extend the usable language for a specific domain without changing the core grammar.
+Semantic profiles capture a sparse, reviewable structural interpretation of the domain language used in a spec without changing the core grammar.
 
 They may define things such as:
 
-* domain-specific entities
-* domain-specific terms
-* concise descriptions that clarify domain meaning
+* base entities
+* roles associated with entities
+* properties associated with entities
+* optional descriptions where natural language is genuinely ambiguous
 
-For example, a shopping-basket profile may declare entities such as `basket total` or `promo code`, and terms such as `empty`, `valid`, or `disabled`, together with descriptions that make those concepts explicit for both humans and tools.
+For example, a shopping-basket profile may record that `product` appears with roles such as `existing` and `new`, or that `basket` has properties such as `count` and `total`.
 
-Profiles are optional at the language level, but they are an important part of making specifications portable and machine-interpretable within a domain.
+Profiles are optional at the language level. They are intended to be proposed by machines, reviewed by humans, and reused by tools so that important structural assumptions do not need to be re-inferred every time.
 
 ### 3. Examples
 
@@ -65,9 +66,10 @@ Future tooling may use the grammar and any selected semantic profiles to:
 
 * extract and list entities
 * highlight inconsistent naming
+* surface candidate roles and properties
 * surface unknown or inconsistent domain vocabulary
 * validate scenario structure
-* assist interpretation of domain-specific behaviour
+* stabilize structural interpretation before deeper machine reasoning
 
 Authoring tools are intended to assist authors while keeping the raw `.spec` file as the primary authored artifact.
 

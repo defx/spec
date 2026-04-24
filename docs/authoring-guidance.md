@@ -9,7 +9,7 @@ It is intended for both:
 
 The goal is not to introduce new rules, but to help you use the language well.
 
-The guide focuses on how to write raw `.spec` files well. Where deeper structure matters, such as roles, properties, or canonical operators, that structure should be made durable in semantic profiles rather than implied only by wording.
+The guide focuses on how to write raw `.spec` files well. Where deeper structure matters, such as roles or properties, that structure should be made durable in semantic profiles rather than implied only by wording.
 
 ---
 
@@ -495,12 +495,12 @@ If two similar terms are both needed, their distinction should be captured expli
 
 When you need distinction, role-based naming can be useful:
 
-```
-[existing product]
-[new product]
+```text
+existing [product]
+new [product]
 ```
 
-At the grammar layer, these are still just entities.
+At the grammar layer, `[product]` remains the entity and the surrounding role words remain ordinary text.
 
 If a role-based interpretation matters, it should be captured in the semantic profile rather than left as an implicit naming convention.
 
@@ -512,13 +512,13 @@ Assistive tools may suggest that names like these look role-qualified, but that 
 
 Property-style names can also be useful:
 
-```
-[product quantity]
-[product price]
-[basket total]
+```text
+[product] quantity
+[product] price
+[basket] total
 ```
 
-Again, these are still just entities in the raw spec text.
+Again, the base entity remains bracketed while the surrounding property words remain ordinary text.
 
 If a tool or author wants to treat them as properties of a base entity, that structure should be made explicit in the semantic profile.
 
