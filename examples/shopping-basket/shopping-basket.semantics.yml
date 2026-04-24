@@ -3,78 +3,58 @@
 
 profile: shopping-basket
 version: 0
-
-domain:
-  description: Commerce-style basket behaviour with derived totals and counts.
+description: Commerce-style basket behaviour with totals, quantities, discounts, and checkout state.
 
 entities:
-  - basket
-  - product
-  - existing product
-  - new product
-  - basket count
-  - basket total
-  - product quantity
-  - product price
-  - existing product price
-  - new product price
-  - promo code
-  - discount
-  - checkout
-  - checkout button
-  - promo code error
-  - user
-  - quantity
+  - name: basket
+    description: A shopping basket containing selected products.
+  - name: product
+    description: A product that may be added to or removed from a basket.
+  - name: existing product
+    description: A product already present in the basket before the scenario begins.
+  - name: new product
+    description: A product not yet present in the basket before the scenario begins.
+  - name: basket count
+    description: The total quantity of products currently in the basket.
+  - name: basket total
+    description: The monetary total for the basket after discounts.
+  - name: product quantity
+    description: The quantity of a specific product currently in the basket.
+  - name: product price
+    description: The price of a product.
+  - name: existing product price
+    description: The price of the existing product.
+  - name: new product price
+    description: The price of the new product.
+  - name: promo code
+    description: A code that may affect basket pricing.
+  - name: discount
+    description: A reduction applied to the basket total.
+  - name: discount amount
+    description: The monetary value of a discount.
+  - name: checkout
+    description: The checkout process for the current basket.
+  - name: checkout button
+    description: A control used to begin checkout.
+  - name: promo code error
+    description: Feedback shown when a promo code is invalid.
+  - name: user
+    description: The actor interacting with the basket.
+  - name: quantity
+    description: A quantity value associated with a product.
 
 terms:
-  - empty
-  - valid
-  - invalid
-  - visible
-  - enabled
-  - disabled
-  - started
-
-operators:
-  - name: is
-    category: relation
-  - name: equals
-    category: relation
-  - name: contains
-    category: relation
-  - name: does not contain
-    category: relation
-  - name: has
-    category: relation
-  - name: uses
-    category: relation
-  - name: adds
-    category: event
-  - name: decreases
-    category: event
-  - name: removes
-    category: event
-  - name: submits
-    category: event
-  - name: starts
-    category: event
-
-expressions:
-  unary: []
-  binary:
-    - plus
-    - minus
-    - multiplied by
-
-derived-values:
-  - name: basket count
-    description: Total quantity of products currently present in the basket.
-  - name: basket total
-    description: Sum of product prices after any applied discounts.
-  - name: product quantity
-    description: Quantity of a specific product currently present in the basket.
-
-expectations:
-  - The basket count reflects the sum of product quantities.
-  - The basket total may be expressed using arithmetic over prices and discounts.
-  - Promo-code validity affects whether a discount is applied.
+  - name: empty
+    description: Containing no products.
+  - name: valid
+    description: Accepted and applicable.
+  - name: invalid
+    description: Rejected or not applicable.
+  - name: visible
+    description: Shown to the user.
+  - name: enabled
+    description: Available for interaction.
+  - name: disabled
+    description: Not available for interaction.
+  - name: started
+    description: Begun but not necessarily completed.

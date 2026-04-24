@@ -19,10 +19,9 @@ The language intentionally defines **structure only**, not meaning.
 
 However, in order to build useful interpreters, additional clarity is needed around:
 
-* relations (e.g. `contains`, `equals`)
-* value constraints (e.g. `plus`, `minus`)
-* dependency handling (e.g. how dependencies are determined for clauses, particularly for derived properties, such as whether all referenced entities must be declared in `Given`, or may be inferred)
-* evaluation rules (e.g. how expressions are resolved, how missing inputs are handled, or whether partial evaluation is allowed)
+* domain-specific entities (e.g. `basket total`, `promo code error`)
+* domain-specific terms (e.g. `empty`, `valid`, `disabled`)
+* the intended meaning of those domain words and references
 
 Without this, interpreters must make implicit assumptions about meaning, making those assumptions harder to see, share, or reuse.
 
@@ -41,7 +40,7 @@ We introduce the concept of **semantic profiles** as a domain extension layer fo
 * Semantic profiles are **not part of the Spec language or grammar**
 * They are **optional, interpreter-facing artifacts**
 * They may be defined and maintained **within the same repository** as Spec
-* They extend the core language with domain-specific entities, operators, terms, and interpretation rules without changing the underlying grammar
+* They extend the core language with domain-specific entities and terms without changing the underlying grammar
 
 Interpreters:
 
@@ -52,7 +51,7 @@ Interpreters:
 Authoring tools:
 
 * may load one or more semantic profiles while assisting authors
-* may use profiles to surface inconsistencies, unsupported operators, or likely structural issues in a spec
+* may use profiles to surface inconsistent domain vocabulary or likely structural issues in a spec
 * should treat such inferences as advisory unless the author accepts changes into the raw specification
 
 Examples may include both:
@@ -93,9 +92,8 @@ Semantic profiles can evolve independently:
 Profiles provide a shared reference for:
 
 * domain-specific entities and terms
-* supported relations
-* value expressions
-* dependency expectations
+* concise descriptions of domain meaning
+* durable naming choices accepted by authors
 
 Profiles make semantic assumptions visible and portable, rather than embedded within individual interpreters.
 
@@ -139,7 +137,7 @@ Once accepted, that structure should be captured explicitly in the semantic prof
 This also supports the idea of multiple semantic profiles with different scopes. For example:
 
 * a specification-level profile may capture project-specific entities, roles, and properties
-* a reusable shared profile may capture operators, arithmetic expressions, or other conventions that apply across multiple specifications
+* a reusable shared profile may later capture cross-domain conventions that apply across multiple specifications
 
 This separation allows tools to combine general reusable semantics with project-specific meaning while keeping the core grammar unchanged.
 
@@ -213,12 +211,13 @@ Rejected because:
 * Semantic profiles should remain **declarative**, not executable
 * They should describe meaning, not implementation
 * They must not redefine the structure of Spec itself
+* The minimal useful profile format should stay small until a stronger need emerges
 
 Future work may include:
 
 * defining a minimal profile format
 * creating example profiles (e.g. commerce, finance)
-* documenting interpreter expectations
+* identifying whether any cross-domain conventions are worth standardising separately
 
 ---
 

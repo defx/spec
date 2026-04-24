@@ -41,11 +41,10 @@ Semantic profiles extend the usable language for a specific domain without chang
 They may define things such as:
 
 * domain-specific entities
-* operators and terms
-* value expressions
-* interpretation rules and expectations
+* domain-specific terms
+* concise descriptions that clarify domain meaning
 
-For example, a shopping-basket profile may declare operators like `contains` or `equals`, terms like `empty` or `discount`, and expectations around derived values such as basket totals.
+For example, a shopping-basket profile may declare entities such as `basket total` or `promo code`, and terms such as `empty`, `valid`, or `disabled`, together with descriptions that make those concepts explicit for both humans and tools.
 
 Profiles are optional at the language level, but they are an important part of making specifications portable and machine-interpretable within a domain.
 
@@ -66,7 +65,7 @@ Future tooling may use the grammar and any selected semantic profiles to:
 
 * extract and list entities
 * highlight inconsistent naming
-* surface unsupported operators or terms
+* surface unknown or inconsistent domain vocabulary
 * validate scenario structure
 * assist interpretation of domain-specific behaviour
 

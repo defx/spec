@@ -2,7 +2,7 @@
 
 This directory defines the formal grammar for `.spec` files.
 
-A `.spec` file captures the **structure** of a behavioural specification. It does not by itself standardise domain-specific operators, terms, or interpretation rules. Those can be layered on separately through semantic profiles.
+A `.spec` file captures the **structure** of a behavioural specification. It does not by itself standardise domain-specific entities, terms, or meanings. Those can be layered on separately through semantic profiles.
 
 ## Overview
 
@@ -96,9 +96,8 @@ The grammar intentionally defines:
 
 It intentionally does **not** define:
 
-* canonical operators
-* canonical value expressions
 * domain-specific entities or terms
+* domain-specific meaning
 * execution semantics
 
 Those concerns are part of the wider project and may be handled through semantic profiles and tooling.
