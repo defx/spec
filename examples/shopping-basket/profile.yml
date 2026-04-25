@@ -1,0 +1,48 @@
+# Provisional profile for the shopping-basket example.
+# This file captures a sparse, machine-proposed structural interpretation
+# of the state-relevant language used in the example spec.
+# The current working view is intentionally state-oriented: entities are the
+# main tracked things, attributes hint at likely state shape, and predicates
+# capture useful readable conditions over that state.
+
+kind: profile
+status: accepted
+version: 1
+profile: shopping-basket
+description: Machine-proposed interpretation of the entities, attributes, and predicates used in the shopping-basket example.
+
+entities:
+  - basket
+  - product
+  - promo code
+  - discount
+  - checkout
+  - checkout button
+  - promo code error
+  - user
+
+attributes:
+  basket:
+    - products
+    - count
+    - total
+    - discount
+  product:
+    - quantity
+    - price
+  discount:
+    - amount
+
+predicates:
+  basket:
+    - empty
+  promo code:
+    - valid
+    - invalid
+  promo code error:
+    - visible
+  checkout:
+    - started
+  checkout button:
+    - enabled
+    - disabled

@@ -9,7 +9,7 @@ It is intended for both:
 
 The goal is not to introduce new rules, but to help you use the language well.
 
-The guide focuses on how to write raw `.spec` files well. Where deeper structure matters, such as roles or properties, that structure should be made durable in semantic profiles rather than implied only by wording.
+The guide focuses on how to write raw `.spec` files well. Where deeper structure matters, such as attributes or predicates, that structure should be made durable in profiles rather than implied only by wording.
 
 ---
 
@@ -258,7 +258,7 @@ Choose words that can be reused across scenarios:
 
 Avoid inventing variations.
 
-If different terms really do represent different concepts, make that distinction explicit in the semantic profile.
+If different terms really do represent different concepts, make that distinction explicit in the profile.
 
 ---
 
@@ -487,11 +487,11 @@ For example, avoid mixing:
 * `count` and `quantity` for the same idea
 * `discount` and `discount amount` unless they are intentionally different concepts
 
-If two similar terms are both needed, their distinction should be captured explicitly in the semantic profile.
+If two similar terms are both needed, their distinction should be captured explicitly in the profile.
 
 ---
 
-## 6.3 Use role-based naming
+## 6.3 Use clear qualifiers when needed
 
 When you need distinction, role-based naming can be useful:
 
@@ -500,15 +500,15 @@ existing [product]
 new [product]
 ```
 
-At the grammar layer, `[product]` remains the entity and the surrounding role words remain ordinary text.
+At the grammar layer, `[product]` remains the entity and the surrounding qualifier words remain ordinary text.
 
-If a role-based interpretation matters, it should be captured in the semantic profile rather than left as an implicit naming convention.
+If such a distinction proves important later, it may need to be captured in a deeper interpretation layer. The current minimal profile format does not require qualifiers as a first-class category.
 
-Assistive tools may suggest that names like these look role-qualified, but that interpretation should remain advisory until accepted by the author and reflected in the profile.
+Assistive tools may still suggest that names like these carry structural distinction, but that interpretation should remain advisory until accepted by the author.
 
 ---
 
-## 6.4 Property-style naming
+## 6.4 Attribute-style naming
 
 Property-style names can also be useful:
 
@@ -520,7 +520,7 @@ Property-style names can also be useful:
 
 Again, the base entity remains bracketed while the surrounding property words remain ordinary text.
 
-If a tool or author wants to treat them as properties of a base entity, that structure should be made explicit in the semantic profile.
+If a tool or author wants to treat them as attributes of a base entity, that structure should be made explicit in the profile.
 
 ---
 
@@ -655,4 +655,4 @@ A good spec should be:
 
 * easy to read
 * hard to misinterpret
-* ready for tooling and semantic profiles to build on
+* ready for tooling and profiles to build on

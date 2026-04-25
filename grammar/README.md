@@ -2,7 +2,7 @@
 
 This directory defines the formal grammar for `.spec` files.
 
-A `.spec` file captures the **structure** of a behavioural specification. It does not by itself standardise domain-specific entities, roles, properties, or meanings. Those can be layered on separately through semantic profiles.
+A `.spec` file captures the **structure** of a behavioural specification. It does not by itself standardise domain-specific entities, attributes, predicates, or meanings. Those can be layered on separately through profiles.
 
 ## Overview
 
@@ -50,7 +50,7 @@ Examples:
 [basket] total equals [product] price minus [discount] amount
 ```
 
-At the grammar layer, words such as `contains`, `equals`, `minus`, or `multiplied by` are not special syntax. They are simply part of the clause text. Their meaning may be interpreted later by tooling or by semantic profiles loaded for a particular domain.
+At the grammar layer, words such as `contains`, `equals`, `minus`, or `multiplied by` are not special syntax. They are simply part of the clause text. Their meaning may be interpreted later by tooling or by profiles loaded for a particular domain.
 
 ## Sections
 
@@ -96,8 +96,8 @@ The grammar intentionally defines:
 
 It intentionally does **not** define:
 
-* domain-specific entities, roles, or properties
+* domain-specific entities, attributes, or predicates
 * domain-specific interpretation
 * execution semantics
 
-Those concerns are part of the wider project and may be handled through semantic profiles and tooling.
+Those concerns are part of the wider project and may be handled through profiles and tooling.
