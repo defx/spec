@@ -11,8 +11,7 @@ Proposed
 Spec defines a lightweight behavioural specification format with:
 
 * structured scenarios (`Given / When / Then`)
-* bracketed entities (e.g. `[basket]`, `[product]`)
-* natural language clauses
+* plain natural-language clauses
 * a formally defined EBNF grammar
 
 The language intentionally defines **structure only**, not meaning.
@@ -41,7 +40,7 @@ We introduce the concept of **profiles** as a companion layer for Spec.
 * Profiles are **not part of the Spec language or grammar**
 * They are **optional, interpreter-facing artifacts**
 * They may be defined and maintained **within the same repository** as Spec
-* They capture a sparse structural interpretation of domain language used in one or more specs
+* They capture a sparse identification of state-relevant elements used in one or more specs
 * They are intended to be **machine-proposed and human-reviewed**
 * They may record entities together with optional attributes, predicates, and clarifying descriptions
 * They should remain lightweight and should not attempt to encode execution semantics or a full state model
@@ -62,7 +61,7 @@ Authoring tools:
 Examples may include both:
 
 * a `.spec` file (structure)
-* a `profile.yml` file (reviewable structural interpretation)
+* a `profile.yml` file (reviewable identification of interpreted elements)
 
 Whether a repository example should include a profile depends on its purpose. Readability-focused examples may stand alone, while examples intended as validation or interpreter reference points may benefit from an accompanying profile.
 
@@ -75,7 +74,7 @@ Whether a repository example should include a profile depends on its purpose. Re
 This preserves a clear boundary:
 
 * Spec → structure
-* Profiles → reviewable structural interpretation of domain language
+* Profiles → reviewable identification of state-relevant elements within that structure
 * Interpreters → execution
 
 The core language remains simple and stable.
@@ -123,19 +122,19 @@ This makes the system easier to understand and adopt.
 
 ### Supports a state-relevant interpretation model
 
-Profiles can also capture structure that is only implicit in how bracketed references are used within the raw spec text.
+Profiles can also capture structure that is only implicit in how plain-language references are used within the raw spec text.
 
-At the grammar layer, only bracketed text is treated as an entity reference. Phrases such as `[product] quantity`, `[basket] total`, or `[promo code] is valid` still rely on ordinary surrounding language, even though tools may classify them more precisely to improve interpretation and validation.
+At the grammar layer, clauses are just plain natural language inside structured `Given`, `When`, and `Then` sections. Phrases such as `product quantity`, `basket total`, or `promo code is valid` still rely on interpretation rather than grammar, even though tools may classify them more precisely to improve interpretation and validation.
 
 For example, a profile may distinguish between:
 
 * entities, such as `basket`, `product`, or `discount`
-* attributes, such as `[product] quantity`, `[product] price`, or `[basket] total`
-* predicates, such as `[basket] is empty`, `[promo code] is valid`, or `[checkout button] is disabled`
+* attributes, such as `product quantity`, `product price`, or `basket total`
+* predicates, such as `basket is empty`, `promo code is valid`, or `checkout button is disabled`
 
 This allows the raw `.spec` file to remain simple while giving tools a more explicit model of how those references are currently being interpreted.
 
-Authoring guidance may describe general heuristics for identifying such patterns, but those heuristics are not themselves semantic definitions. For example, an assistive tool may notice that `[product] quantity` appears to be an attribute of `product`, or that `[promo code] is valid` appears to be a predicate over `promo code`. These interpretations should be surfaced as suggestions for the author to confirm or reject.
+Authoring guidance may describe general heuristics for identifying such patterns, but those heuristics are not themselves semantic definitions. For example, an assistive tool may notice that `product quantity` appears to be an attribute of `product`, or that `promo code is valid` appears to be a predicate over `promo code`. These interpretations should be surfaced as suggestions for the author to confirm or reject.
 
 Once accepted, that structure should be captured explicitly in the profile so it becomes durable, visible, and portable rather than remaining a local tool inference.
 
@@ -176,7 +175,7 @@ This can happen incrementally, based on real-world use.
 ### Positive
 
 * Spec remains minimal and readable
-* Machines have a reviewable record of accepted structural interpretation
+* Machines have a reviewable record of accepted identified elements
 * AI tools have more stable context for repeated reasoning
 * Multiple domains can define their own semantics
 
@@ -240,7 +239,7 @@ Future work may include:
 
 ## Summary
 
-Profiles provide a structured way to capture and review machine interpretation of domain language without expanding the core grammar.
+Profiles provide a structured way to capture and review machine identification of state-relevant elements without expanding the core grammar.
 
 They allow the project to balance:
 

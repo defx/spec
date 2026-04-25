@@ -57,8 +57,8 @@ given-section =
    event, and which determine whether the transition takes place.
 
    Example:
-   When the [user] submits [promo code]
-   And [promo code] is [invalid]
+   When the user submits promo code
+   And promo code is invalid
 *)
 when-section =
     when-line, line-end,
@@ -70,8 +70,8 @@ when-section =
    These may express relationships between entities or value-based constraints.
 
    Examples:
-   - [basket] contains [product]
-   - [basket total] equals [product price]
+   - basket contains product
+   - basket total equals product price
 *)
 then-section =
     then-line
@@ -111,29 +111,22 @@ then-clause = clause ;
    Clause (generalised)
    ========================= *)
 
-(* A clause contains one or more bracketed entities, with text between them.
-   Optional text may appear before the first entity and after the last.
+(* A clause is plain natural-language content that runs until the end of the line.
+   The grammar identifies clause boundaries, but does not attempt to identify
+   interpreted entities or other state-relevant structure within the clause.
 
    Examples:
-   - [basket] contains [product]
-   - the [user] taps the [checkout button]
-   - [user] submits [promo code]
-   - [basket total] equals [product price]
-   - [basket count] equals 1
-   - [basket total] equals [product price] minus [discount amount]
+   - basket contains product
+   - the user taps the checkout button
+   - user submits promo code
+   - basket total equals product price
+   - basket count equals 1
+   - basket total equals product price minus discount amount
 *)
 
-clause =
-    [ text ],
-    entity,
-    { text, entity },
-    [ text ] ;
+clause = clause-char, { clause-char } ;
 
-(* Text is any non-bracket, non-newline content.
-   It connects entities but is not interpreted by the parser. *)
-text = text-char, { text-char } ;
-
-text-char = ? any Unicode character except "[" or "]" or newline ? ;
+clause-char = ? any Unicode character except newline ? ;
 
 (* =========================
    Comments
@@ -141,16 +134,6 @@ text-char = ? any Unicode character except "[" or "]" or newline ? ;
 
 (* Comments attach to the block that follows them. *)
 comment-line = opt-ws, "#", { non-newline-char } ;
-
-(* =========================
-   Entity
-   ========================= *)
-
-entity = "[", entity-text, "]" ;
-
-entity-text = entity-char, { entity-char } ;
-
-entity-char = ? any Unicode character except "]" or newline ? ;
 
 (* =========================
    Whitespace / newlines

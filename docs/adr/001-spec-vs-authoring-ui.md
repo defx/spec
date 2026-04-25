@@ -15,7 +15,7 @@ As the language is applied to more realistic examples, a tension appears between
 
 This tension becomes particularly visible when modelling state relationships and scope.
 
-For example, a phrase such as `[item count]` may be naturally understood by a human reader as belonging to the basket slice of state in a shopping basket example. However, that scoping is not always explicit in the text itself, and forcing authors to encode every such relationship directly into the specification could make specifications more verbose and less natural.
+For example, a phrase such as `item count` may be naturally understood by a human reader as belonging to the basket slice of state in a shopping basket example. However, that scoping is not always explicit in the text itself, and forcing authors to encode every such relationship directly into the specification could make specifications more verbose and less natural.
 
 At the same time, relying only on disciplined manual writing is unlikely to scale well. Writing highly consistent specifications by hand places a large burden on authors and may become a barrier to adoption.
 

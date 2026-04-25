@@ -2,7 +2,7 @@
 
 **Spec** is a working project exploring a lightweight ecosystem for behavioural specification.
 
-At the centre of the project is a minimal `.spec` format for writing scenarios in natural language with explicit structure. Around that core, the project also explores profiles, examples, and tooling patterns that help machines derive working state-oriented interpretations from those specifications.
+At the centre of the project is a minimal `.spec` format for writing scenarios in natural language with explicit structure. Around that core, the project also explores profiles, examples, and tooling patterns that help machines identify state-relevant elements within that structure.
 
 `Spec` is currently just a placeholder project name.
 
@@ -15,7 +15,7 @@ It currently includes:
 * a formal grammar for `.spec` files
 * ADRs describing the evolving design
 * example specifications
-* an example profile showing how interpreted state-relevant structure can be layered on top of the core format
+* an example profile showing how state-relevant elements can be identified within the core format
 
 Taken together, these pieces describe an ecosystem rather than just a grammar.
 
@@ -27,8 +27,7 @@ The core grammar defines the structure of a `.spec` file:
 
 * scenario blocks
 * `Given / When / Then` sections
-* bracketed entities such as `[basket]` or `[product]`
-* natural-language clauses around those entities
+* plain natural-language clauses inside those sections
 
 The grammar is intentionally lightweight. It defines structure, not full domain meaning.
 
@@ -36,7 +35,7 @@ See [grammar/README.md](/grammar/README.md) and [grammar/spec.ebnf](/grammar/spe
 
 ### 2. Profiles
 
-Profiles capture a sparse, reviewable structural interpretation of the domain language used in a spec without changing the core grammar.
+Profiles capture a sparse, reviewable identification of state-relevant elements within the structure of a spec, without changing the core grammar.
 
 They may define things such as:
 
@@ -47,13 +46,17 @@ They may define things such as:
 
 For example, a shopping-basket profile may record entities such as `basket` and `product`, attributes such as `count`, `total`, `price`, and `quantity`, and predicates such as `empty`, `valid`, or `disabled`.
 
-Profiles are optional at the language level. They are intended to be proposed by machines, reviewed by humans, and reused by tools so that important state-relevant assumptions do not need to be re-inferred every time.
+Profiles are optional at the language level. They serve two complementary purposes:
+
+* they provide a living working document for human-in-the-loop clarification, refinement, and agreement during authoring
+* they provide the current accepted interpretation that tools can rely on before attempting downstream work such as state-machine derivation
 
 The simplest working document model is whole-document versioning:
 
 * `profile.yml` is the current interpreted reference for an example or specification
 * `status` indicates whether that document is a `draft` or `accepted`
-* `version` increments whenever a new draft is created
+* accepted documents increment `version` from the last accepted version in a way that fits semantic-versioning principles
+* draft documents may include a tentative version to signal the expected type of change, but the final accepted version is only fixed when the document is accepted
 
 Draft comparison and history can then be handled externally by Git or by a separate version-management tool.
 
@@ -64,7 +67,7 @@ The `examples/` directory shows how the layers fit together in practice.
 An example folder may contain:
 
 * a `.spec` file showing the raw authored structure
-* a `profile.yml` file showing the interpreted structure used with that spec
+* a `profile.yml` file showing the identified elements used with that spec
 
 If an example folder includes a profile, it is intended to be read as a grammar-plus-profile example rather than a grammar-only example.
 
@@ -72,12 +75,12 @@ If an example folder includes a profile, it is intended to be read as a grammar-
 
 Future tooling may use the grammar and any selected profiles to:
 
-* extract and list entities
+* locate and classify clauses by phase
 * highlight inconsistent naming
 * surface candidate attributes and predicates
 * surface unknown or inconsistent domain vocabulary
 * validate scenario structure
-* stabilize structural interpretation before deeper machine reasoning
+* stabilize interpretation of identified elements before deeper machine reasoning
 
 Authoring tools are intended to assist authors while keeping the raw `.spec` file as the primary authored artifact.
 
@@ -111,7 +114,7 @@ This is the first concrete step toward the profile direction described in ADR 00
 The current design direction is:
 
 * keep the core grammar small and stable
-* allow interpreted state-relevant structure to be layered in through profiles
+* allow state-relevant elements to be identified through profiles
 * use examples and ADRs to evolve the model before standardising too early
 
 Relevant ADRs:
