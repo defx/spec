@@ -1,126 +1,206 @@
 # Spec
 
-**Spec** is a working project exploring a lightweight ecosystem for behavioural specification.
+**A structured, machine-interpretable approach to writing behavioural specifications without the cognitive overhead of traditional Gherkin.**
 
-At the centre of the project is a minimal `.spec` format for writing scenarios in natural language with explicit structure. Around that core, the project also explores profiles, examples, and tooling patterns that help machines identify state-relevant elements within that structure.
+---
 
-`Spec` is currently just a placeholder project name.
+## Why Spec Exists
 
-## What This Repository Contains
+For over a decade, practices like Behaviour-Driven Development (BDD) and Specification by Example have helped teams answer the hardest question in software:
 
-This repository is intentionally broader than the `.spec` file format alone.
+> *What are we actually trying to build and why?*
 
-It currently includes:
+Techniques like Example Mapping emphasise something critical:
 
-* a formal grammar for `.spec` files
-* ADRs describing the evolving design
-* example specifications
-* an example profile showing how state-relevant elements can be identified within the core format
+* The conversation is the real work
+* The specification artefact is a by-product
 
-Taken together, these pieces describe an ecosystem rather than just a grammar.
+That insight still holds.
 
-## Project Layers
+But in practice, teams hit a recurring problem:
 
-### 1. Core grammar
+* Writing good specifications (for example Gherkin) is hard
+* Poorly written specs quickly become ambiguous, inconsistent, or misleading
+* The cognitive load of doing it well is high
+* As a result, many teams either:
 
-The core grammar defines the structure of a `.spec` file:
+  * abandon the artefact, or
+  * produce something that machines and humans both struggle to trust
 
-* scenario blocks
-* `Given / When / Then` sections
-* plain natural-language clauses inside those sections
+As one practitioner put it:
 
-The grammar is intentionally lightweight. It defines structure, not full domain meaning.
+> “It takes too much cognitive load to write them well and when they’re not written well, the issues compound.”
 
-See [grammar/README.md](/grammar/README.md) and [grammar/spec.ebnf](/grammar/spec.ebnf).
+Spec exists to address that gap.
 
-### 2. Profiles
+---
 
-Profiles capture a sparse, reviewable identification of state-relevant elements within the structure of a spec, without changing the core grammar.
+## What Spec Is (and Isn’t)
 
-They may define things such as:
+Spec is not a replacement for:
 
-* entities
-* attributes associated with those entities
-* predicates associated with those entities
-* optional clarifications where natural language is genuinely ambiguous
+* Example Mapping
+* Collaborative specification conversations
+* Domain discovery
 
-For example, a shopping-basket profile may record entities such as `basket` and `product`, attributes such as `count`, `total`, `price`, and `quantity`, and predicates such as `empty`, `valid`, or `disabled`.
+Instead, Spec focuses on what comes after:
 
-Profiles are optional at the language level. They serve two complementary purposes:
+> **How do we turn shared understanding into a precise, low-friction, machine-usable specification?**
 
-* they provide a living working document for human-in-the-loop clarification, refinement, and agreement during authoring
-* they provide the current accepted interpretation that tools can rely on before attempting downstream work such as state-machine derivation
+---
 
-The simplest working document model is whole-document versioning:
+## The Core Idea
 
-* `profile.yml` is the current interpreted reference for an example or specification
-* `status` indicates whether that document is a `draft` or `accepted`
-* accepted documents increment `version` from the last accepted version in a way that fits semantic-versioning principles
+Spec reframes behavioural specifications as:
 
-### 3. Examples
+* State transitions (Given to When to Then)
+* Invariants (conditions that must hold for a valid state, expressed through Given and Then clauses)
 
-The `examples/` directory shows how the layers fit together in practice.
+It then formalises that structure with a grammar.
 
-An example folder may contain:
+This does three things:
 
-* a `.spec` file showing the raw authored structure
-* a `profile.yml` file showing the identified elements used with that spec
+1. Reduces cognitive load
 
-If an example folder includes a profile, it is intended to be read as a grammar-plus-profile example rather than a grammar-only example.
+   * Authors do not have to figure out how to write good Gherkin
+   * The structure is explicit and enforced
 
-### 4. Tooling
+2. Eliminates ambiguity in form, not meaning
 
-Future tooling may use the grammar and any selected profiles to:
+   * The syntax is constrained
+   * The interpretation becomes inspectable
 
-* locate and classify clauses by phase
-* highlight inconsistent naming
-* surface candidate attributes and predicates
-* surface unknown or inconsistent domain vocabulary
-* validate scenario structure
-* stabilise interpretation of identified elements before deeper machine reasoning
+3. Makes specifications trivially machine-readable
 
-Authoring tools are intended to assist authors while keeping the raw `.spec` file as the primary authored artifact.
+   * No heuristics required to parse intent
+   * Structure is guaranteed
 
-## Repository Structure
+---
 
-```text
-grammar/
-  README.md
-  spec.ebnf
-examples/
-  shopping-basket/
-    shopping-basket.spec
-    profile.yml
-docs/
-  adr/
-    001-spec-vs-authoring-ui.md
-    002-semantics-as-companion-layer.md
-```
+## The Problem with Traditional Gherkin
 
-## Current Example
+Gherkin is powerful, but fragile.
 
-The shopping basket example currently includes both:
+In theory:
 
-* [shopping-basket.spec](/examples/shopping-basket/shopping-basket.spec)
-* [profile.yml](/examples/shopping-basket/profile.yml)
+* It provides a clean Given, When, Then structure
 
-This is the first concrete step toward the profile direction described in ADR 002.
+In practice:
 
-## Design Notes
+* It is easy to write syntactically valid but semantically unclear scenarios
+* Different authors interpret structure differently
+* Tooling often relies on conventions rather than guarantees
 
-The current design direction is:
+The result:
 
-* keep the core grammar small and stable
-* allow state-relevant elements to be identified through profiles
-* use examples and ADRs to evolve the model before standardising too early
+* High variability in quality
+* Increased cognitive effort
+* Reduced trust in the artefact
 
-Relevant ADRs:
+Spec addresses this by tightening the structure without increasing the burden on the author.
 
-* [ADR 001](/docs/adr/001-spec-vs-authoring-ui.md): authoring assistance and lightweight core language
-* [ADR 002](/docs/adr/002-semantics-as-companion-layer.md): profiles as a companion interpretation layer
+---
+
+## How Spec Works
+
+### 1. A Formal Grammar
+
+Spec defines a canonical grammar (EBNF) for writing specifications.
+
+This ensures:
+
+* Consistent structure
+* Deterministic parsing
+* Clear separation of concerns (state, actions, outcomes)
+
+---
+
+### 2. Structured Interpretation (Human-in-the-Loop)
+
+Spec does not stop at parsing.
+
+It introduces a document schema that allows an interpreter, for example an AI agent, to:
+
+* Extract:
+
+  * Entities
+  * State variables
+  * Transitions
+  * Invariants
+* Represent its interpretation explicitly
+* Surface that interpretation for review and refinement
+
+This enables:
+
+* Detection of ambiguity
+* Identification of inconsistencies
+* Clarification of intent
+
+This happens without requiring the author to encode everything perfectly upfront.
+
+---
+
+### 3. Towards Executable Models
+
+With consistent structure and explicit interpretation, specifications can be used to:
+
+* Generate state machines
+* Validate completeness of scenarios
+* Identify missing transitions or edge cases
+
+This is not required to use Spec, but it becomes possible.
+
+---
+
+## Relationship to Existing Practices
+
+Spec builds on existing practices:
+
+* Use Example Mapping to have the conversation
+* Use Spec to capture the outcome in a structured, inspectable way
+
+Think of it as:
+
+> **Conversation to Spec to Interpretation to (optional) Execution**
+
+---
+
+## Why This Matters Now
+
+AI has changed the landscape.
+
+We are no longer just writing specifications for humans. We are writing them for:
+
+* Agents that generate code
+* Systems that validate behaviour
+* Tools that reason about intent
+
+AI systems are only as good as the structure they are given.
+
+Spec provides that structure:
+
+* Clear enough for machines
+* Flexible enough for humans
+* Designed for collaboration between the two
+
+---
+
+## Project Goals
+
+* Reduce the cognitive load of writing high-quality specifications
+* Provide a canonical, parseable structure for behavioural specs
+* Enable human-in-the-loop interpretation and refinement
+* Support downstream uses (validation, generation, modelling)
+
+---
 
 ## Status
 
-This repository is still exploratory.
+Spec is an evolving project exploring:
 
-The core grammar is concrete, but the profile layer is still being shaped through ADRs and examples. The goal at this stage is to make the layers and intent clear to newcomers while leaving room for the design to evolve.
+* Grammar design
+* Reference parsing
+* Interpretation schemas
+* Tooling for authoring and review
+
+
