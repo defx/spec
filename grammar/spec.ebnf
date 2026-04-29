@@ -58,7 +58,7 @@ given-section =
 
    Example:
    When the user submits promo code
-   And promo code is invalid
+   And promo code is valid
 *)
 when-section =
     when-line, line-end,

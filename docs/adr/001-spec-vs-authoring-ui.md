@@ -80,8 +80,6 @@ Examples in this repository should aim to be:
 
 Where ambiguity exists but can reasonably be resolved by future authoring tools, examples do not need to force all disambiguation directly into the text.
 
-As the repository evolves, it is worth watching which examples benefit from accompanying profiles for validation, comparison, or interpreter guidance, without requiring that of every example from the outset.
-
 ## Alternatives considered
 
 ### Encode more semantics directly into the language
@@ -90,7 +88,7 @@ This would make some interpretations easier, but it risks making specifications 
 
 ### Require authors to write fully explicit specifications by hand
 
-This would maximize explicitness in raw text, but it would place too much burden on authors and likely reduce adoption.
+This would maximize explicitness in raw text, but it would place too much burden on authors.
 
 ### Leave all interpretation to interpreters with no authoring assistance
 
