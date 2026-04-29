@@ -56,8 +56,7 @@ At the grammar layer, words such as `contains`, `equals`, `minus`, or `multiplie
 ```text
 Given basket is empty
 When the user adds product to basket
-Then basket contains product
-And basket count equals 1
+Then basket count equals 1
 ```
 
 ## Comments

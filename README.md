@@ -56,9 +56,6 @@ The simplest working document model is whole-document versioning:
 * `profile.yml` is the current interpreted reference for an example or specification
 * `status` indicates whether that document is a `draft` or `accepted`
 * accepted documents increment `version` from the last accepted version in a way that fits semantic-versioning principles
-* draft documents may include a tentative version to signal the expected type of change, but the final accepted version is only fixed when the document is accepted
-
-Draft comparison and history can then be handled externally by Git or by a separate version-management tool.
 
 ### 3. Examples
 
@@ -80,7 +77,7 @@ Future tooling may use the grammar and any selected profiles to:
 * surface candidate attributes and predicates
 * surface unknown or inconsistent domain vocabulary
 * validate scenario structure
-* stabilize interpretation of identified elements before deeper machine reasoning
+* stabilise interpretation of identified elements before deeper machine reasoning
 
 Authoring tools are intended to assist authors while keeping the raw `.spec` file as the primary authored artifact.
 

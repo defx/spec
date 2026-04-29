@@ -9,7 +9,7 @@ It is intended for both:
 
 The goal is not to introduce new rules, but to help you use the language well.
 
-The guide focuses on how to write raw `.spec` files well. Where deeper structure matters, that structure should be captured in a companion `profile.yml` rather than forced directly into the spec text.
+The guide focuses on how to write raw `.spec` files well. Where deeper interpretation matters, the raw spec should stay plain, and a companion `profile.yml` can identify the relevant elements within that structure.
 
 ---
 
@@ -24,10 +24,10 @@ Good:
 ```text
 Given basket is empty
 When the user adds product to basket
-Then basket contains product
+Then basket total equals product price
 ```
 
-Less good:
+Bad:
 
 ```text
 Given basket.items is []
@@ -105,7 +105,7 @@ Includes an event.
 ```text
 Given basket is empty
 When the user adds product to basket
-Then basket contains product
+Then basket total equals product price
 ```
 
 ### Invariant scenario
@@ -113,8 +113,8 @@ Then basket contains product
 No event. Describes what must hold under stated conditions.
 
 ```text
-Given basket contains product
-Then basket total equals product price
+Given basket is empty
+Then checkout button is disabled
 ```
 
 ---
@@ -138,16 +138,17 @@ Good:
 
 ```text
 Given product price
-And discount
-Then subtotal equals product price minus discount
+And product quantity
+Then line total equals product price multiplied by product quantity
 ```
 
-Avoid incidental conditions that do not matter to the scenario.
+Avoid incidental conditions that do not affect the property being described.
 
-Less good:
+Bad:
 
 ```text
-Given subtotal is visible
+Given line total is visible
+Then line total equals product price multiplied by product quantity
 ```
 
 ---
@@ -179,7 +180,7 @@ Then the user has added product
 Good:
 
 ```text
-Then basket contains product
+Then basket total equals product price
 ```
 
 ---
@@ -199,7 +200,7 @@ Good recurring phrases:
 
 Avoid inventing unnecessary synonyms.
 
-If two similar phrases really do represent different ideas, capture that distinction in the profile.
+If two similar phrases really do represent different ideas, make that distinction explicit in the profile.
 
 ---
 
@@ -280,7 +281,7 @@ Be careful when mixing terms such as:
 * `discount` and `discount amount`
 * `total` and `subtotal`
 
-If both are needed, make the distinction deliberate and reflect it in the profile.
+If both are needed, make the distinction deliberate and explicit in the profile.
 
 ---
 
@@ -295,7 +296,7 @@ new product
 
 But qualifiers should earn their keep. If they do not help distinguish meaning, avoid them.
 
-If they matter structurally, let profiles or later interpretation layers capture that distinction rather than overcomplicating the raw spec text.
+If they matter to interpretation, let profiles or later interpretation layers identify that distinction rather than overcomplicating the raw spec text.
 
 ---
 
@@ -353,9 +354,9 @@ Then basket total equals product price
 
 # 6. Profiles
 
-Profiles are the place to capture interpreted structure that should not be forced into the spec text.
+Profiles are the place to identify interpreted elements that should not be forced into the spec text.
 
-The current minimal profile format focuses on:
+The current minimal profile format identifies:
 
 * entities
 * attributes
@@ -373,8 +374,7 @@ The raw `.spec` remains the primary authored artifact. The profile is its workin
 Given basket is empty
 And product price
 When the user adds product to basket
-Then basket contains product
-And basket total equals product price
+Then basket total equals product price
 ```
 
 ---
