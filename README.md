@@ -105,7 +105,7 @@ Spec addresses this by tightening the structure without increasing the burden on
 
 ### 1. A Formal Grammar
 
-Spec defines a canonical grammar (EBNF) for writing specifications.
+Spec defines a canonical [grammar](grammar/spec.ebnf) (EBNF) for writing specifications.
 
 This ensures:
 

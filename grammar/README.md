@@ -67,7 +67,7 @@ Comments attach to the block that follows them.
 
 ## Formal Grammar
 
-The full EBNF is defined in [spec.ebnf](/Users/matthewdonkin/Projects/defx/spec/grammar/spec.ebnf).
+The full EBNF is defined in [spec.ebnf](spec.ebnf).
 
 ## Scope
 
