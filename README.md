@@ -1,6 +1,6 @@
 # Spec
 
-**A structured, machine-interpretable approach to writing behavioural specifications without the cognitive overhead of traditional Gherkin.**
+**A structured, machine-interpretable approach to writing behavioural specifications.**
 
 ---
 
