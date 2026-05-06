@@ -1,0 +1,36 @@
+{
+  "name": "@defx/spec-parser",
+  "version": "0.1.0",
+  "description": "Canonical parser for .spec files.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "spec": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "grammar",
+    "README.md",
+    "AST.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "dev:parse": "node --watch dist/cli.js parse",
+    "parse": "node dist/cli.js parse",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "typescript": "^5.8.3"
+  }
+}
