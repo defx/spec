@@ -6,20 +6,22 @@
 
 ## Why Spec Exists
 
-For over a decade, practices like Behaviour-Driven Development (BDD) and Specification by Example have helped teams answer the hardest question in software:
+Teams use many practices to clarify software behaviour: conversations, examples,
+acceptance criteria, tests, models, and structured specification techniques.
+Whatever the approach, the same hard question keeps coming up:
 
-> *What are we actually trying to build and why?*
+> *What are we actually trying to build, and how should it behave?*
 
-Techniques like Example Mapping emphasise something critical:
+Good specification work tends to preserve something important:
 
-* The conversation is the real work
-* The specification artefact is a by-product
+* Shared understanding comes before the written artefact
+* The artefact should make that understanding easier to inspect, discuss, and trust
 
 That insight still holds.
 
 But in practice, teams hit a recurring problem:
 
-* Writing good specifications (for example Gherkin) is hard
+* Writing good behavioural specifications is hard
 * Poorly written specs quickly become ambiguous, inconsistent, or misleading
 * The cognitive load of doing it well is high
 * As a result, many teams either:
@@ -39,9 +41,10 @@ Spec exists to address that gap.
 
 Spec is not a replacement for:
 
-* Example Mapping
 * Collaborative specification conversations
 * Domain discovery
+* Product, design, or engineering judgement
+* Existing discovery, modelling, or testing practices
 
 Instead, Spec focuses on what comes after:
 
@@ -172,14 +175,18 @@ This is not required to use Spec, but it becomes possible.
 
 ## Relationship to Existing Practices
 
-Spec builds on existing practices:
+Spec is intentionally methodology-neutral.
 
-* Use Example Mapping to have the conversation
-* Use Spec to capture the outcome in a structured, inspectable way
+A Spec document may come from collaborative workshops, product conversations,
+acceptance criteria, domain modelling, BDD-style practices, existing test cases,
+or individual design work.
 
-Think of it as:
+Spec focuses on the artefact that follows that work:
 
-> **Conversation to Spec to Interpretation to (optional) Execution**
+> **Shared understanding to structured specification to interpretation to optional execution**
+
+The goal is to make behavioural intent easier to capture, inspect, parse, and
+reason about without requiring teams to adopt a particular discovery practice.
 
 ---
 
@@ -223,4 +230,3 @@ Spec is an evolving project exploring:
 
 The first canonical parser is available in
 [`packages/parser`](packages/parser).
-
