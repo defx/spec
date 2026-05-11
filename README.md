@@ -183,7 +183,7 @@ or individual design work.
 
 Spec focuses on the artefact that follows that work:
 
-> **Shared understanding to structured specification to interpretation to optional execution**
+> **Shared understanding to structured, inspectable specification**
 
 The goal is to make behavioural intent easier to capture, inspect, parse, and
 reason about without requiring teams to adopt a particular discovery practice.
