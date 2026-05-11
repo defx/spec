@@ -115,7 +115,25 @@ This ensures:
 
 ---
 
-### 2. Structured Interpretation (Human-in-the-Loop)
+### 2. A Canonical Parser
+
+Spec includes a canonical TypeScript parser in
+[`packages/parser`](packages/parser).
+
+The parser provides:
+
+* a library API via `parseSpec(source, options?)`
+* a CLI via `spec parse <file.spec>`
+* canonical JSON AST output
+* source spans and parse diagnostics for tooling
+
+The parser is intentionally syntactic. It preserves the authored structure and
+opaque clause text without inferring entities, attributes, guard conditions, or
+effects.
+
+---
+
+### 3. Structured Interpretation (Human-in-the-Loop)
 
 Spec does not stop at parsing.
 
@@ -140,7 +158,7 @@ This happens without requiring the author to encode everything perfectly upfront
 
 ---
 
-### 3. Towards Executable Models
+### 4. Towards Executable Models
 
 With consistent structure and explicit interpretation, specifications can be used to:
 
@@ -199,8 +217,10 @@ Spec provides that structure:
 Spec is an evolving project exploring:
 
 * Grammar design
-* Reference parsing
+* Canonical parsing
 * Interpretation schemas
 * Tooling for authoring and review
 
+The first canonical parser is available in
+[`packages/parser`](packages/parser).
 

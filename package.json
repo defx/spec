@@ -1,0 +1,16 @@
+{
+  "name": "@defx/spec-workspace",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/parser"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "sync:grammar": "node scripts/sync-parser-grammar.mjs",
+    "test": "npm run test --workspaces"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
