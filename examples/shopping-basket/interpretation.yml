@@ -1,0 +1,350 @@
+kind: spec-interpretation
+version: 1
+status: accepted
+name: shopping-basket
+description: State-machine interpretation of the shopping-basket example.
+
+spec:
+  path: examples/shopping-basket/shopping-basket.spec
+  grammar:
+    name: spec
+    version: 1
+  ast:
+    kind: spec-ast
+    version: 1
+
+domain:
+  entities:
+    - id: basket
+      name: basket
+      status: accepted
+      attributes:
+        - id: products
+          name: products
+          status: accepted
+        - id: count
+          name: count
+          status: accepted
+        - id: total
+          name: total
+          status: accepted
+        - id: discount
+          name: discount
+          status: accepted
+      predicates:
+        - id: empty
+          name: empty
+          status: accepted
+    - id: product
+      name: product
+      status: accepted
+      attributes:
+        - id: quantity
+          name: quantity
+          status: accepted
+        - id: price
+          name: price
+          status: accepted
+      predicates: []
+    - id: promo-code
+      name: promo code
+      status: accepted
+      attributes: []
+      predicates:
+        - id: valid
+          name: valid
+          status: accepted
+        - id: invalid
+          name: invalid
+          status: accepted
+    - id: promo-code-error
+      name: promo code error
+      status: accepted
+      attributes: []
+      predicates:
+        - id: visible
+          name: visible
+          status: accepted
+    - id: checkout
+      name: checkout
+      status: accepted
+      attributes: []
+      predicates:
+        - id: started
+          name: started
+          status: accepted
+    - id: checkout-button
+      name: checkout button
+      status: accepted
+      attributes: []
+      predicates:
+        - id: enabled
+          name: enabled
+          status: accepted
+        - id: disabled
+          name: disabled
+          status: accepted
+    - id: user
+      name: user
+      status: accepted
+      attributes: []
+      predicates: []
+  relations:
+    - id: basket-contains-product
+      subject: basket
+      predicate: contains
+      object: product
+      status: accepted
+    - id: checkout-uses-basket
+      subject: checkout
+      predicate: uses
+      object: basket
+      status: accepted
+
+stateMachine:
+  state:
+    - id: basket-products
+      entity: basket
+      kind: attribute
+      name: products
+      status: accepted
+    - id: basket-count
+      entity: basket
+      kind: attribute
+      name: count
+      status: accepted
+    - id: basket-total
+      entity: basket
+      kind: attribute
+      name: total
+      status: accepted
+    - id: basket-discount
+      entity: basket
+      kind: attribute
+      name: discount
+      status: accepted
+    - id: basket-empty
+      entity: basket
+      kind: predicate
+      name: empty
+      status: accepted
+    - id: product-quantity
+      entity: product
+      kind: attribute
+      name: quantity
+      status: accepted
+    - id: product-price
+      entity: product
+      kind: attribute
+      name: price
+      status: accepted
+    - id: promo-code-valid
+      entity: promo-code
+      kind: predicate
+      name: valid
+      status: accepted
+    - id: promo-code-invalid
+      entity: promo-code
+      kind: predicate
+      name: invalid
+      status: accepted
+    - id: promo-code-error-visible
+      entity: promo-code-error
+      kind: predicate
+      name: visible
+      status: accepted
+    - id: checkout-started
+      entity: checkout
+      kind: predicate
+      name: started
+      status: accepted
+    - id: checkout-button-enabled
+      entity: checkout-button
+      kind: predicate
+      name: enabled
+      status: accepted
+    - id: checkout-button-disabled
+      entity: checkout-button
+      kind: predicate
+      name: disabled
+      status: accepted
+    - id: basket-contains-product
+      entity: basket
+      kind: relation
+      name: basket contains product
+      status: accepted
+    - id: checkout-uses-basket
+      entity: checkout
+      kind: relation
+      name: checkout uses basket
+      status: accepted
+  transitions:
+    - id: add-product-to-empty-basket
+      name: Add a product to an empty basket
+      event: the user adds product to basket
+      preconditions:
+        - basket is empty
+      postconditions:
+        - basket contains product
+        - basket count equals 1
+        - basket total equals product price
+      status: accepted
+      sourceRefs:
+        - scenario: Add a product to an empty basket
+    - id: add-second-product-to-basket
+      name: Add a second product to the basket
+      event: the user adds new product to basket
+      preconditions:
+        - basket contains existing product
+        - basket count equals 1
+      postconditions:
+        - basket contains existing product
+        - basket contains new product
+        - basket count equals 2
+        - basket total equals existing product price plus new product price
+      status: accepted
+      sourceRefs:
+        - scenario: Add a second product to the basket
+    - id: increase-existing-product-quantity
+      name: Increase the quantity of an existing product
+      event: the user adds product to basket
+      preconditions:
+        - basket contains product
+        - product quantity equals 1
+      postconditions:
+        - product quantity equals 2
+        - basket count equals 2
+        - basket total equals product price multiplied by 2
+      status: accepted
+      sourceRefs:
+        - scenario: Increase the quantity of an existing product
+    - id: decrease-product-quantity
+      name: Decrease the quantity of a product
+      event: the user decreases quantity of product
+      preconditions:
+        - basket contains product
+        - product quantity equals 2
+      postconditions:
+        - product quantity equals 1
+        - basket count equals 1
+        - basket total equals product price
+      status: accepted
+      sourceRefs:
+        - scenario: Decrease the quantity of a product
+    - id: remove-product-when-quantity-reaches-zero
+      name: Remove a product when its quantity reaches zero
+      event: the user decreases quantity of product
+      preconditions:
+        - basket contains product
+        - product quantity equals 1
+      postconditions:
+        - basket does not contain product
+        - basket count equals 0
+        - basket total equals 0
+      status: accepted
+      sourceRefs:
+        - scenario: Remove a product when its quantity reaches zero
+    - id: remove-product-from-basket
+      name: Remove a product from the basket
+      event: the user removes product from basket
+      preconditions:
+        - basket contains product
+        - basket count equals 1
+      postconditions:
+        - basket does not contain product
+        - basket count equals 0
+        - basket total equals 0
+      status: accepted
+      sourceRefs:
+        - scenario: Remove a product from the basket
+    - id: apply-valid-promo-code
+      name: Apply a valid promo code
+      event: the user submits promo code
+      preconditions:
+        - basket contains product
+        - promo code is valid
+      postconditions:
+        - basket has discount
+        - basket total equals product price minus discount amount
+      status: accepted
+      sourceRefs:
+        - scenario: Apply a valid promo code
+    - id: reject-invalid-promo-code
+      name: Reject an invalid promo code
+      event: the user submits promo code
+      preconditions:
+        - basket contains product
+        - promo code is invalid
+      postconditions:
+        - basket total equals product price
+        - promo code error is visible
+      status: accepted
+      sourceRefs:
+        - scenario: Reject an invalid promo code
+    - id: start-checkout-from-non-empty-basket
+      name: Start checkout from a non-empty basket
+      event: the user starts checkout
+      preconditions:
+        - basket contains product
+      postconditions:
+        - checkout is started
+        - checkout uses basket
+      status: accepted
+      sourceRefs:
+        - scenario: Start checkout from a non-empty basket
+  invariants:
+    - id: checkout-button-disabled-for-empty-basket
+      name: Checkout button is disabled for an empty basket
+      condition:
+        - basket is empty
+      mustHold:
+        - checkout button is disabled
+      status: accepted
+      sourceRefs:
+        - scenario: Checkout button is disabled for an empty basket
+    - id: checkout-button-enabled-for-non-empty-basket
+      name: Checkout button is enabled for a non-empty basket
+      condition:
+        - basket contains product
+      mustHold:
+        - checkout button is enabled
+      status: accepted
+      sourceRefs:
+        - scenario: Checkout button is enabled for a non-empty basket
+    - id: basket-total-equals-sum-of-products
+      name: Basket total equals the sum of all products
+      condition:
+        - basket contains product
+      mustHold:
+        - basket total equals product price
+      status: accepted
+      sourceRefs:
+        - scenario: Basket total equals the sum of all products
+    - id: basket-total-reflects-discount
+      name: Basket total reflects discount when a promo code is applied
+      condition:
+        - basket contains product
+        - basket has discount
+      mustHold:
+        - basket total equals product price minus discount amount
+      status: accepted
+      sourceRefs:
+        - scenario: Basket total reflects discount when a promo code is applied
+
+ambiguities:
+  - id: product-vs-existing-new-product
+    phrase: existing product / new product
+    note: The spec distinguishes product instances in some scenarios, but the interpretation keeps a single product entity for now.
+    options:
+      - Model product as a single entity with scenario-local aliases.
+      - Model existing product and new product as distinct product instances.
+  - id: discount-ownership
+    phrase: basket has discount
+    note: The current interpretation treats discount as basket state, but discount could become a separate entity if richer discount behaviour is introduced.
+    options:
+      - Keep discount as a basket attribute.
+      - Promote discount to a separate entity with amount as an attribute.
+
+notes:
+  - Conditions and effects are stored as readable clause-derived strings in v1.
+  - Transition and invariant source references point at scenario titles; clause-level references can be added when tooling consumes parser spans directly.

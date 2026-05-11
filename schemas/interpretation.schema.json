@@ -1,0 +1,400 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://defx.dev/spec/schemas/interpretation.schema.json",
+  "title": "Spec Interpretation Document",
+  "description": "A reviewable companion interpretation of a .spec file, oriented toward state-machine modelling.",
+  "type": "object",
+  "required": ["kind", "version", "status", "spec", "domain", "stateMachine"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "const": "spec-interpretation"
+    },
+    "version": {
+      "const": 1
+    },
+    "status": {
+      "$ref": "#/$defs/reviewStatus"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "spec": {
+      "type": "object",
+      "required": ["path", "ast"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "grammar": {
+          "type": "object",
+          "required": ["name", "version"],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "spec"
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "ast": {
+          "type": "object",
+          "required": ["kind", "version"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "spec-ast"
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "path": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "domain": {
+      "type": "object",
+      "required": ["entities"],
+      "additionalProperties": false,
+      "properties": {
+        "entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entity"
+          },
+          "uniqueItems": true
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relation"
+          },
+          "default": []
+        }
+      }
+    },
+    "stateMachine": {
+      "type": "object",
+      "required": ["state", "transitions", "invariants"],
+      "additionalProperties": false,
+      "properties": {
+        "state": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/stateElement"
+          }
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/transition"
+          }
+        },
+        "invariants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/invariant"
+          }
+        }
+      }
+    },
+    "ambiguities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ambiguity"
+      },
+      "default": []
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "default": []
+    }
+  },
+  "$defs": {
+    "reviewStatus": {
+      "type": "string",
+      "enum": ["proposed", "reviewed", "accepted"]
+    },
+    "termId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "sourceRef": {
+      "type": "object",
+      "required": ["scenario"],
+      "additionalProperties": false,
+      "properties": {
+        "scenario": {
+          "type": "string",
+          "minLength": 1
+        },
+        "phase": {
+          "type": "string",
+          "enum": ["given", "when", "then"]
+        },
+        "clause": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/termId"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/reviewStatus"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entityMember"
+          },
+          "default": []
+        },
+        "predicates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entityMember"
+          },
+          "default": []
+        },
+        "sourceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceRef"
+          },
+          "default": []
+        }
+      }
+    },
+    "entityMember": {
+      "type": "object",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/termId"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "$ref": "#/$defs/reviewStatus"
+        },
+        "sourceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceRef"
+          },
+          "default": []
+        }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "required": ["id", "subject", "predicate", "object"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/termId"
+        },
+        "subject": {
+          "$ref": "#/$defs/termId"
+        },
+        "predicate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "object": {
+          "$ref": "#/$defs/termId"
+        },
+        "status": {
+          "$ref": "#/$defs/reviewStatus"
+        },
+        "sourceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceRef"
+          },
+          "default": []
+        }
+      }
+    },
+    "stateElement": {
+      "type": "object",
+      "required": ["id", "entity", "kind", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/termId"
+        },
+        "entity": {
+          "$ref": "#/$defs/termId"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["attribute", "predicate", "relation"]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "$ref": "#/$defs/reviewStatus"
+        },
+        "sourceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceRef"
+          },
+          "default": []
+        }
+      }
+    },
+    "transition": {
+      "type": "object",
+      "required": ["id", "name", "event", "preconditions", "postconditions", "sourceRefs"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/termId"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "event": {
+          "type": "string",
+          "minLength": 1
+        },
+        "preconditions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "postconditions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "status": {
+          "$ref": "#/$defs/reviewStatus"
+        },
+        "sourceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceRef"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "invariant": {
+      "type": "object",
+      "required": ["id", "name", "condition", "mustHold", "sourceRefs"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/termId"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "condition": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "mustHold": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "status": {
+          "$ref": "#/$defs/reviewStatus"
+        },
+        "sourceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceRef"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "ambiguity": {
+      "type": "object",
+      "required": ["id", "phrase", "note"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/termId"
+        },
+        "phrase": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": []
+        },
+        "sourceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceRef"
+          },
+          "default": []
+        }
+      }
+    }
+  }
+}
