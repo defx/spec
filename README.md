@@ -140,36 +140,98 @@ effects.
 
 Spec does not stop at parsing.
 
-It introduces a document schema that allows an interpreter, for example an AI agent, to:
+It introduces a reviewed companion document, `interpretation.yml`, that captures
+the meaning inferred from the canonical parser AST. The interpretation is shaped
+around state-machine concepts:
 
-* Extract:
-
-  * Entities
-  * State variables
-  * Transitions
-  * Invariants
-* Represent its interpretation explicitly
-* Surface that interpretation for review and refinement
+* finite states
+* typed context values
+* events
+* guarded transitions
+* effects
+* invariants
+* source references back to parser-derived scenarios and clauses
 
 This enables:
 
 * Detection of ambiguity
 * Identification of inconsistencies
 * Clarification of intent
+* Review of the assumptions that downstream tools will rely on
 
-This happens without requiring the author to encode everything perfectly upfront.
+The canonical schema lives at
+[`schemas/interpretation.schema.json`](schemas/interpretation.schema.json), with
+supporting documentation in
+[`docs/interpretation-schema.md`](docs/interpretation-schema.md) and
+[`docs/interpretation-process.md`](docs/interpretation-process.md).
+
+The interpretation layer remains human-in-the-loop: an AI agent may propose an
+interpretation, but the accepted artifact is explicit, reviewable, and editable.
 
 ---
 
-### 4. Towards Executable Models
+### 4. Projection Towards Executable Models
 
-With consistent structure and explicit interpretation, specifications can be used to:
+With consistent structure and explicit interpretation, specifications can be
+projected into state-machine models.
 
-* Generate state machines
-* Validate completeness of scenarios
-* Identify missing transitions or edge cases
+Spec currently includes an interpreter package in
+[`packages/interpreter`](packages/interpreter). It can:
 
-This is not required to use Spec, but it becomes possible.
+* load and validate `interpretation.yml`
+* perform structural checks beyond JSON Schema
+* build a serializable XState-compatible machine config
+
+XState is the first intended projection target. The interpretation document is
+not raw XState configuration, but it is deliberately shaped so projection can be
+deterministic.
+
+Executing projected machines and validating full scenario coverage are next-step
+interpreter concerns.
+
+---
+
+## Repository Layout
+
+* [`grammar/spec.ebnf`](grammar/spec.ebnf): canonical Spec grammar
+* [`packages/parser`](packages/parser): canonical TypeScript parser for `.spec`
+  files
+* [`schemas/interpretation.schema.json`](schemas/interpretation.schema.json):
+  canonical interpretation document schema
+* [`packages/interpreter`](packages/interpreter): validation and projection
+  utilities for reviewed interpretation documents
+* [`prompts/interpretation`](prompts/interpretation): prompts for producing
+  conservative interpretation documents from parser AST JSON
+* [`examples/shopping-basket`](examples/shopping-basket): example `.spec` file
+  and reviewed `interpretation.yml`
+
+---
+
+## Development
+
+Install dependencies:
+
+```sh
+npm install
+```
+
+Build all workspace packages:
+
+```sh
+npm run build
+```
+
+Run the test suite:
+
+```sh
+npm test
+```
+
+Validate the shopping basket interpretation example:
+
+```sh
+npm run validate:interpretation
+```
 
 ---
 
@@ -225,8 +287,14 @@ Spec is an evolving project exploring:
 
 * Grammar design
 * Canonical parsing
-* Interpretation schemas
-* Tooling for authoring and review
+* Reviewed interpretation documents
+* XState-compatible projection
+* Tooling for authoring, review, and validation
 
-The first canonical parser is available in
-[`packages/parser`](packages/parser).
+The canonical parser is available in [`packages/parser`](packages/parser).
+
+The first interpretation schema, extraction prompt, shopping basket
+interpretation example, and interpreter package are also present. The interpreter
+currently validates interpretation documents and builds a serializable
+XState-compatible machine config; executing those machines and using them to
+validate scenario coverage are planned follow-on work.
