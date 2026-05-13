@@ -8,9 +8,14 @@
   "scripts": {
     "build": "npm run build --workspaces",
     "sync:grammar": "node scripts/sync-parser-grammar.mjs",
-    "test": "npm run test --workspaces"
+    "validate:interpretation": "node scripts/validate-interpretation.mjs",
+    "test": "node --test test/*.test.mjs && npm run test --workspaces"
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0",
+    "yaml": "^2.9.0"
   }
 }
