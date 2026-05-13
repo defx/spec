@@ -186,8 +186,9 @@ describe("CLI", () => {
     const outPath = join(tempDir, "shopping-basket.ast.json");
 
     try {
-      const { stdout } = await execFileAsync(process.execPath, [cliPath, "parse", fixturePath, "--out", outPath]);
+      const { stdout, stderr } = await execFileAsync(process.execPath, [cliPath, "parse", fixturePath, "--out", outPath]);
       assert.equal(stdout, "");
+      assert.equal(stderr, `Wrote AST to ${outPath}\n`);
 
       const ast = JSON.parse(await readFile(outPath, "utf8"));
       assert.equal(ast.kind, "spec-ast");

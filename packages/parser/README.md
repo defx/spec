@@ -98,6 +98,8 @@ Write JSON to a file:
 npm run parse --workspace @defx/spec-parser -- ../../examples/shopping-basket/shopping-basket.spec --pretty --out /tmp/shopping-basket.ast.json
 ```
 
+Successful `--out` runs print the written path to stderr and leave stdout empty.
+
 When the package is installed or linked, it exposes the `spec` binary:
 
 ```sh

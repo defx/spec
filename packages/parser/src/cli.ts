@@ -22,6 +22,7 @@ async function main(argv: string[]): Promise<number> {
     const outPath = resolve(options.out);
     await mkdir(dirname(outPath), { recursive: true });
     await writeFile(outPath, output, "utf8");
+    process.stderr.write(`Wrote AST to ${outPath}\n`);
     return 0;
   }
 

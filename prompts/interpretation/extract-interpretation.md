@@ -1,7 +1,8 @@
 # Extract State-Machine Interpretation
 
 Use this prompt to produce a conservative `interpretation.yml` document from
-canonical Spec parser AST JSON.
+canonical Spec parser AST JSON. The output should be reviewable by humans and
+shaped for deterministic projection into an XState-compatible state machine.
 
 ## Prompt
 
@@ -14,11 +15,22 @@ block kind, clause phase, clause text, and source provenance.
 Your task is to produce a reviewable interpretation conforming to
 `schemas/interpretation.schema.json`.
 
+When testing this prompt, the full JSON Schema may be provided after the prompt.
+If a schema is provided, treat it as authoritative for allowed keys, required
+fields, object shapes, and enum values. If this prompt and the schema appear to
+disagree, follow the schema for structure and this prompt for modelling
+judgment.
+
 Focus on the smallest useful interpretation that explains the parsed scenarios
 and can be projected into an XState-compatible state-machine model for
 validation.
 
-Extract:
+## Modelling Goal
+
+Produce a semantic model that is readable as YAML but concrete enough to
+compile into a state machine. Do not output raw XState configuration.
+
+The interpretation should make these concepts explicit:
 
 1. Finite states and the initial state
 2. Context values that represent extended state
@@ -29,25 +41,183 @@ Extract:
 7. Invariants from AST blocks with `kind: "invariant"`
 8. Ambiguities or assumptions that need human review
 
-Use these rules:
+## Modelling Bias
+
+Use finite states for durable lifecycle or mode changes. Good finite states are
+states that a domain reviewer would naturally name, such as `empty`,
+`checking-out`, `approved`, or `cancelled`.
+
+Use context for quantities, values, flags, selections, identifiers, totals, and
+other extended state that would otherwise create many similar finite states.
+
+Use facts to preserve domain wording from the scenarios. Facts are review
+anchors: they explain why states, guards, effects, and invariants exist. Facts
+should use authored language where possible.
+
+Use structured guards and effects. Do not store transition preconditions or
+postconditions as plain strings.
+
+When a modelling choice is plausible in more than one way, choose the smallest
+useful model and add an ambiguity explaining the alternatives. Common
+ambiguities include:
+
+* finite state versus context
+* one event with payload versus separate events
+* one broad state versus several narrower states
+* a fact versus a context value
+* a scenario-local phrase versus a durable model concept
+
+## Clause Mapping
+
+For transition blocks:
+
+* `given` clauses become candidate source states, guards, context conditions,
+  or supporting facts
+* `when` clauses become events
+* `then` clauses become candidate target states, effects, facts, or invariant
+  checks
+
+For invariant blocks:
+
+* `given` clauses become structured `when` conditions
+* `then` clauses become structured assertions that must hold
+
+## Output Rules
 
 * Preserve authored domain wording where possible
 * Prefer a sparse interpretation over an exhaustive catalog
 * Do not invent implementation details, APIs, data structures, or UI mechanics
 * Do not invent state that is not supported by AST clauses
 * Keep event wording close to `when` clause text
-* Interpret `given` clauses in transition blocks as source states, guards, or context facts
-* Interpret `when` clauses in transition blocks as events
-* Interpret `then` clauses in transition blocks as target states, effects, or invariant checks
-* Interpret `given` clauses in invariant blocks as structured `when` conditions
-* Interpret `then` clauses in invariant blocks as structured assertions that must hold
 * If a phrase could be interpreted in multiple plausible ways, add an ambiguity
 * Attach `sourceRefs` using AST scenario titles, phases, and clause text
 * Mark new machine-proposed items as `proposed` unless instructed otherwise
+* Return exactly one YAML code block and no explanatory prose
 
-Return YAML only.
+## YAML Safety
 
-Use this top-level shape:
+Use YAML mappings and arrays only. Avoid YAML features such as anchors, aliases,
+tags, merge keys, and multi-document output.
+
+Use YAML indentation consistently. Nested mapping properties must be indented
+under their parent key. Array items must use `-`, not `*`.
+
+Use `event` for transition event ids. Do not use an unquoted `on` key; some YAML
+parsers treat `on` as a boolean.
+
+Quote scalar values when they could be read as booleans, numbers, nulls, dates,
+or YAML keywords. Examples that should usually be quoted include `enabled`,
+`disabled`, `valid`, `invalid`, `yes`, `no`, `on`, `off`, `null`, and values
+with punctuation that might be ambiguous.
+
+## Source References
+
+Use this exact source reference shape:
+
+```yaml
+sourceRefs:
+  - scenario: <scenario title>
+    phase: given
+    clause: <clause text>
+```
+
+The only allowed source reference keys are `scenario`, `phase`, and `clause`.
+Do not use `text`, `line`, `span`, or other keys in `sourceRefs`.
+
+## Structured Conditions
+
+Use these condition forms:
+
+```yaml
+fact: <fact-id>
+```
+
+```yaml
+state: <state-id>
+```
+
+```yaml
+context: <context-path>
+operator: equals
+value: <json-compatible-value>
+```
+
+```yaml
+all:
+  - <condition>
+```
+
+```yaml
+any:
+  - <condition>
+```
+
+```yaml
+not:
+  <condition>
+```
+
+For context conditions, choose one of these operators:
+
+```text
+equals
+notEquals
+greaterThan
+greaterThanOrEquals
+lessThan
+lessThanOrEquals
+includes
+doesNotInclude
+exists
+doesNotExist
+```
+
+## Structured Effects
+
+Use these effect forms:
+
+```yaml
+assign: <context-path>
+value: <json-compatible-value>
+```
+
+```yaml
+assertFact: <fact-id>
+```
+
+```yaml
+clearFact: <fact-id>
+```
+
+```yaml
+action: <action-id>
+params: {}
+```
+
+Use `assign` for context updates, `assertFact` for facts made true by a
+transition, and `clearFact` for facts made false by a transition. Use `action`
+only when the scenario clearly implies a named side effect that cannot be
+represented as context or facts.
+
+## Consistency Checks Before Returning
+
+Before returning the YAML, check it against these expectations:
+
+* `model.initial` is one of `model.states[*].id`
+* every transition `from` state exists
+* every transition `to` state exists when `to` is present and not null
+* every transition `event` exists in `model.events`
+* every referenced fact exists in `model.facts`
+* every invariant has a structured `when` condition and at least one structured
+  assertion
+* every `sourceRefs` entry uses `clause`, not `text`
+* every ambiguity has `id`, `phrase`, `note`, optional `options`, and optional
+  `sourceRefs`
+* `notes` is an array of strings, not an array of objects
+* no old draft fields are present: `domain`, `stateMachine`, `preconditions`,
+  `postconditions`, `condition`, or `mustHold`
+
+## Top-Level Shape
 
 ```yaml
 kind: spec-interpretation
@@ -69,16 +239,83 @@ model:
   id: <short-name>
   initial: <initial-state-id>
   context: {}
-  facts: []
-  states: []
-  events: []
-  transitions: []
+  facts:
+    - id: <fact-id>
+      phrase: <authored domain phrase>
+      status: proposed
+      sourceRefs:
+        - scenario: <scenario title>
+          phase: given
+          clause: <clause text>
+          phase: given
+          clause: <clause text>
+  states:
+    - id: <state-id>
+      name: <state name>
+      facts: []
+      status: proposed
+      sourceRefs:
+        - scenario: <scenario title>
+          phase: given
+          clause: <clause text>
+  events:
+    - id: <event-id>
+      name: <event name>
+      phrase: <when clause wording>
+      status: proposed
+      sourceRefs:
+        - scenario: <scenario title>
+          phase: when
+          clause: <clause text>
+  transitions:
+    - id: <transition-id>
+      name: <scenario title or transition name>
+      from: <state-id>
+      event: <event-id>
+      to: <state-id>
+      guard:
+        state: <state-id>
+      effects: []
+      status: proposed
+      sourceRefs:
+        - scenario: <scenario title>
 
-invariants: []
-ambiguities: []
-notes: []
+invariants:
+  - id: <invariant-id>
+    name: <scenario title or invariant name>
+    when:
+      state: <state-id>
+    assert:
+      - fact: <fact-id>
+    status: proposed
+    sourceRefs:
+      - scenario: <scenario title>
+        phase: given
+        clause: <clause text>
+ambiguities:
+  - id: <ambiguity-id>
+    phrase: <ambiguous phrase>
+    note: <why the interpretation is uncertain>
+    options:
+      - <one possible interpretation>
+      - <another possible interpretation>
+    sourceRefs:
+      - scenario: <scenario title>
+        phase: given
+        clause: <clause text>
+notes:
+  - <plain string note>
 ```
 
 ## Input
 
-Paste the canonical parser AST JSON below this line.
+When manually testing this prompt, paste the full JSON Schema below this line,
+then paste the canonical parser AST JSON after it.
+
+```text
+JSON Schema:
+<paste schemas/interpretation.schema.json here>
+
+Parser AST:
+<paste canonical parser AST JSON here>
+```
