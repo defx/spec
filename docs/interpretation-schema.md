@@ -1,9 +1,8 @@
 # Interpretation Schema
 
 Spec interpretation documents are optional companion artifacts for `.spec`
-files. They capture a reviewable interpretation of the canonical parser AST,
-structured precisely enough to be projected into a state-machine model for
-validation.
+files. They capture the durable, reviewable output of an agent-led
+interpretation loop over the canonical parser AST.
 
 The canonical schema lives at:
 
@@ -14,25 +13,32 @@ schemas/interpretation.schema.json
 ## Purpose
 
 The parser defines structure, not meaning. It emits a canonical AST containing
-scenario blocks, phases, clause text, and source spans. Interpretation documents
-sit downstream of that AST and identify the state-machine concepts that appear
-to be present in the parsed specification.
+scenario blocks, phases, clause text, source spans, and structural block
+classification. Interpretation documents sit downstream of that AST and record
+the accepted domain meaning needed to validate and improve the parsed
+specification.
 
 The intended flow is:
 
 ```text
-.spec file -> canonical parser AST -> interpretation.yml -> downstream workflows
+.spec file
+  -> canonical parser AST
+  -> agent-led interpretation loop
+  -> interpretation.yml
+  -> state-machine projection
+  -> validation and generated scenario tests
+  -> user feedback / specification refinement / generation
 ```
 
 Interpretation documents should not be produced by reparsing raw `.spec` text.
 They may preserve references to the raw file, but the parser AST is the input
 contract for interpretation.
 
-Downstream workflows may include specification review and refinement, test case
-generation, consistency checking, state-machine exploration, or executable
-model generation. The state-machine orientation is the discipline underpinning
-the interpretation: an actual model can be produced to validate the
-interpretation, even when that model is not the artifact a user consumes.
+State-machine projection should be used to validate accepted interpretations.
+It may run in the background and does not always need to be exposed as a
+user-facing artifact, but the interpretation document should be precise enough
+for projection tools to build the model, validate it, and generate scenario
+tests.
 
 ## Document Shape
 
@@ -77,7 +83,7 @@ proposed -> reviewed -> accepted
 
 They may appear on the whole document and on individual interpreted elements.
 
-`proposed` means an interpreter has suggested the item.
+`proposed` means the agent has suggested the item.
 `reviewed` means a human has inspected it but may still expect revision.
 `accepted` means the current project treats it as the working interpretation.
 
@@ -127,12 +133,12 @@ versions may add a normalized expression model once enough examples exist.
 
 Ambiguities are first-class because interpretation is not meant to hide
 assumptions inside an AI process. If a phrase could be an attribute, predicate,
-relation, event, or ordinary wording, the interpreter should surface that
-uncertainty rather than forcing false precision.
+relation, event, or ordinary wording, the agent should surface that uncertainty
+rather than forcing false precision.
 
 ## Non-Goals
 
-Version 1 does not define:
+Version 1 of the schema does not define:
 
 * executable transition semantics
 * a normalized expression language
@@ -140,5 +146,5 @@ Version 1 does not define:
 * test generation rules
 * implementation data structures
 
-Those belong to later layers. This schema only captures the accepted
-interpretation needed to begin state-machine reasoning.
+Those belong to projection and validation tools in the broader interpretation
+layer. This schema captures the accepted interpretation those tools consume.

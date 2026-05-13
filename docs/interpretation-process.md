@@ -1,29 +1,35 @@
 # Interpretation Process
 
-The interpretation process turns canonical parser output into a reviewable
-state-machine interpretation.
+The interpretation process is an agent-led loop that turns canonical parser
+output into a reviewed interpretation, then validates that interpretation by
+projecting it into a state-machine model and generating scenario tests.
 
 It does not parse `.spec` files directly. The parser is the only component that
-understands Spec syntax. Interpreters consume the parser AST and preserve links
-back to the AST blocks and clauses they used.
+understands Spec syntax. The agent consumes the parser AST, incorporates user
+feedback, updates `interpretation.yml`, and uses projection tools to validate
+the result.
 
 ## Pipeline
 
 ```text
 1. Author a .spec file
 2. Parse it with the canonical parser
-3. Interpret the parser AST
-4. Review and edit interpretation.yml
-5. Use accepted interpretation for downstream workflows
+3. Run the agent-led interpretation loop over the parser AST
+4. Review and edit interpretation.yml with the user
+5. Project the interpretation into a state-machine model
+6. Generate and run scenario-level validation tests
+7. Feed results back into the specification or interpretation
+8. Repeat until the interpretation is reviewed or accepted
 ```
 
 ## Inputs
 
-The interpreter should receive:
+The agent should receive:
 
 * the canonical parser AST JSON
 * the target interpretation schema version
 * optional existing `interpretation.yml` content when refining prior work
+* user feedback, corrections, and acceptance
 
 The raw `.spec` file may be available for display or source lookup, but it
 should not be the interpretation input. This keeps all interpretation work
@@ -31,7 +37,8 @@ grounded in the same structural contract used by downstream tools.
 
 ## Output
 
-The interpreter outputs an `interpretation.yml` document conforming to:
+The durable output of the loop is an `interpretation.yml` document conforming
+to:
 
 ```text
 schemas/interpretation.schema.json
@@ -41,19 +48,22 @@ The document should be conservative. It should capture the smallest useful
 interpretation that explains the parsed scenarios and can be projected into a
 state-machine model for validation.
 
-Downstream workflows may include improving the original specification,
-generating test cases, checking consistency, exploring state-machine models, or
-producing executable artifacts. State-machine modelling is a design constraint
-on the interpretation, not the required user-facing destination for every user.
+The agent may also provide conversational feedback: ambiguities, validation
+failures, suggested refinements, or generated test summaries. That feedback does
+not always need to be written into a durable artifact.
 
-An actual state-machine model may be produced in the background to validate the
-interpretation. That model does not always need to be exposed as a durable
-artifact, but the interpretation should be concrete enough that such a model can
-be constructed and used to check consistency, completeness, and determinism.
+An actual state-machine model should be produced to validate accepted
+interpretations. That model does not always need to be exposed as a user-facing
+artifact, but it gives the agent and tools a concrete way to check consistency,
+completeness, and determinism.
+
+Generated scenario tests are part of that validation loop. They are not merely
+a downstream benefit; they help prove that the interpretation can support
+deterministic behaviour.
 
 ## State-Machine Focus
 
-The interpreter should identify:
+The agent should identify:
 
 * entities that own or participate in state
 * attributes that represent values or collections
