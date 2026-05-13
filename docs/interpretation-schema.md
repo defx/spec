@@ -16,7 +16,8 @@ The parser defines structure, not meaning. It emits a canonical AST containing
 scenario blocks, phases, clause text, source spans, and structural block
 classification. Interpretation documents sit downstream of that AST and record
 the accepted domain meaning needed to validate and improve the parsed
-specification.
+specification. The schema is now shaped for deterministic projection into a
+state-machine ecosystem, with XState as the first intended target.
 
 The intended flow is:
 
@@ -37,8 +38,8 @@ contract for interpretation.
 State-machine projection should be used to validate accepted interpretations.
 It may run in the background and does not always need to be exposed as a
 user-facing artifact, but the interpretation document should be precise enough
-for projection tools to build the model, validate it, and generate scenario
-tests.
+for projection tools to build an XState-compatible model, validate it, and
+generate scenario tests.
 
 ## Document Shape
 
@@ -60,15 +61,16 @@ spec:
     kind: spec-ast
     version: 1
 
-domain:
-  entities: []
-  relations: []
-
-stateMachine:
-  state: []
+model:
+  id: shopping-basket
+  initial: empty
+  context: {}
+  facts: []
+  states: []
+  events: []
   transitions: []
-  invariants: []
 
+invariants: []
 ambiguities: []
 notes: []
 ```
@@ -87,64 +89,119 @@ They may appear on the whole document and on individual interpreted elements.
 `reviewed` means a human has inspected it but may still expect revision.
 `accepted` means the current project treats it as the working interpretation.
 
-## Domain
+## Model
 
-`domain.entities` records stable concepts that recur in the parsed scenarios and
-may participate in state.
+`model` records the accepted behavioural model in a shape that can be compiled
+into an executable state machine.
 
-Each entity may have:
+The model has:
 
-* `attributes`: values, collections, quantities, or owned state
-* `predicates`: named conditions that can hold for the entity
-* `sourceRefs`: parser-derived references to scenarios and clauses
+* `id`: a stable model identifier
+* `initial`: the initial state id
+* `context`: extended state data that may be read by guards or updated by
+  effects
+* `facts`: domain phrases that explain states, guards, invariants, or effects
+* `states`: finite states, optionally nested for later statechart projection
+* `events`: interpreted events, usually derived from `When` clauses
+* `transitions`: state changes triggered by events
 
-`domain.relations` records named links between entities, such as a basket
-containing a product. Relations are separated from predicates so that
-state-machine consumers do not confuse a condition on one entity with a link
-between two entities.
+The model is not raw XState configuration. It preserves review status, source
+references, facts, and domain phrasing in ways that are useful to Spec authors.
+Projection tools are responsible for compiling it into XState-compatible
+configuration.
 
-## State Machine
+## States
 
-`stateMachine.state` identifies the interpreted state surface: attributes,
-predicates, and relations that may matter to transitions, invariants, tests, or
-other downstream checks.
+`model.states` defines the finite state surface. Each state has an `id` and
+`name`, and may include:
 
-`stateMachine.transitions` correspond to parser blocks whose AST `kind` is
-`transition`. A transition records:
+* `type`: `atomic`, `compound`, `parallel`, or `final`
+* `initial` and nested `states` for compound or parallel models
+* `facts`: references to model facts that hold in that state
+* `tags`: stable labels that may be useful during projection or testing
+* `sourceRefs`: links back to parser-derived scenarios and clauses
 
-* `event`: the interpreted event from `when` clauses
-* `preconditions`: state-like facts from `given` clauses
-* `postconditions`: resulting facts from `then` clauses
+## Events
+
+`model.events` defines the event vocabulary used by transitions. Events usually
+come from `When` clauses and may preserve both a concise `name` and a domain
+`phrase`.
+
+Events may also define `payload` fields when the scenario wording implies
+event data that guards or effects need to inspect.
+
+## Transitions
+
+`model.transitions` correspond primarily to parser blocks whose AST `kind` is
+`transition`.
+
+A transition records:
+
+* `from`: the source state id
+* `on`: the event id
+* `to`: the target state id, or `null` for internal/context-only transitions
+* `guard`: an optional structured condition
+* `effects`: context assignments, fact assertions, fact clearing, or named
+  actions
 * `sourceRefs`: links back to the source scenario and relevant clauses
 
-`stateMachine.invariants` correspond to parser blocks whose AST `kind` is
-`invariant`. An invariant records:
+This replaces the earlier draft shape of readable `preconditions` and
+`postconditions`. Readable facts are still preserved, but executable structure
+is now explicit enough for deterministic projection.
 
-* `condition`: facts from `given` clauses
-* `mustHold`: required facts from `then` clauses
+## Conditions And Effects
+
+Guards and invariants use structured conditions. Version 1 supports:
+
+* `fact`: a referenced model fact
+* `state`: a referenced state
+* `context`: a comparison against context data
+* `all`, `any`, and `not`: recursive logical composition
+
+Transition effects support:
+
+* `assign`: set a context path to a JSON-compatible value
+* `assertFact`: mark a fact as true after the transition
+* `clearFact`: mark a fact as false after the transition
+* `action`: reference a named projection action with optional JSON-compatible
+  parameters
+
+The schema still leaves the exact runtime semantics to projection and
+validation tools. It does, however, require enough structure that tools do not
+need to rediscover guards and effects from free-form strings.
+
+## Invariants
+
+`invariants` correspond primarily to parser blocks whose AST `kind` is
+`invariant`.
+
+An invariant records:
+
+* `when`: a structured condition under which the invariant applies
+* `assert`: one or more structured conditions that must hold
 * `sourceRefs`: links back to the source scenario and relevant clauses
 
-The schema intentionally stores conditions as readable strings for v1. Later
-versions may add a normalized expression model once enough examples exist.
+Projection tools can turn invariants into generated assertions, model checks,
+or scenario-level validation tests.
 
 ## Ambiguities
 
 `ambiguities` records phrases or interpretations that need human review.
 
 Ambiguities are first-class because interpretation is not meant to hide
-assumptions inside an AI process. If a phrase could be an attribute, predicate,
-relation, event, or ordinary wording, the agent should surface that uncertainty
-rather than forcing false precision.
+assumptions inside an AI process. If a phrase could be a state, context value,
+fact, event, guard, effect, or ordinary wording, the agent should surface that
+uncertainty rather than forcing false precision.
 
 ## Non-Goals
 
 Version 1 of the schema does not define:
 
-* executable transition semantics
-* a normalized expression language
+* raw XState configuration
+* complete executable transition semantics
 * code generation targets
 * test generation rules
-* implementation data structures
+* a full expression language beyond the structured condition/effect forms
 
 Those belong to projection and validation tools in the broader interpretation
 layer. This schema captures the accepted interpretation those tools consume.

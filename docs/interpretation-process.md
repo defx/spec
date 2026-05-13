@@ -45,8 +45,8 @@ schemas/interpretation.schema.json
 ```
 
 The document should be conservative. It should capture the smallest useful
-interpretation that explains the parsed scenarios and can be projected into a
-state-machine model for validation.
+interpretation that explains the parsed scenarios and can be projected into an
+XState-compatible state-machine model for validation.
 
 The agent may also provide conversational feedback: ambiguities, validation
 failures, suggested refinements, or generated test summaries. That feedback does
@@ -65,34 +65,35 @@ deterministic behaviour.
 
 The agent should identify:
 
-* entities that own or participate in state
-* attributes that represent values or collections
-* predicates that represent conditions over an entity
-* relations that connect entities
+* finite states and the initial state
+* context values that represent extended state
+* facts that preserve important domain phrasing
+* events derived from AST transition blocks
 * transitions derived from AST transition blocks
+* guards and effects needed to make transitions deterministic
 * invariants derived from AST invariant blocks
 * ambiguities that need human review
 
 For transition blocks:
 
-* `given` clauses become candidate preconditions
+* `given` clauses become candidate source states, guards, or context facts
 * `when` clauses become candidate events
-* `then` clauses become candidate postconditions
+* `then` clauses become candidate target states, effects, or invariant checks
 
 For invariant blocks:
 
-* `given` clauses become candidate conditions
-* `then` clauses become facts that must hold
+* `given` clauses become structured `when` conditions
+* `then` clauses become structured assertions that must hold
 
 ## Human Review
 
 AI-assisted interpretation is advisory until reviewed. A human reviewer should
 check whether:
 
-* entity names preserve the domain language
-* attributes and predicates are not over-extracted
-* relations are not accidentally represented as predicates
+* state names, event names, and facts preserve the domain language
+* context values are not over-extracted
 * transitions match the scenario intent
+* guards and effects are explicit enough for deterministic projection
 * invariants describe durable rules rather than events
 * ambiguities are explicit enough to resolve later
 

@@ -15,16 +15,17 @@ Your task is to produce a reviewable interpretation conforming to
 `schemas/interpretation.schema.json`.
 
 Focus on the smallest useful interpretation that explains the parsed scenarios
-and can be projected into a state-machine model for validation.
+and can be projected into an XState-compatible state-machine model for
+validation.
 
 Extract:
 
-1. Domain entities that own or participate in state
-2. Attributes that represent values, quantities, collections, or owned state
-3. Predicates that represent conditions over a single entity
-4. Relations that link entities
-5. State elements that transitions or invariants depend on
-6. Transitions from AST blocks with `kind: "transition"`
+1. Finite states and the initial state
+2. Context values that represent extended state
+3. Facts that preserve important domain wording
+4. Events derived from `when` clauses
+5. Transitions from AST blocks with `kind: "transition"`
+6. Guards and effects needed to make transitions deterministic
 7. Invariants from AST blocks with `kind: "invariant"`
 8. Ambiguities or assumptions that need human review
 
@@ -35,14 +36,11 @@ Use these rules:
 * Do not invent implementation details, APIs, data structures, or UI mechanics
 * Do not invent state that is not supported by AST clauses
 * Keep event wording close to `when` clause text
-* Interpret `given` clauses in transition blocks as preconditions
+* Interpret `given` clauses in transition blocks as source states, guards, or context facts
 * Interpret `when` clauses in transition blocks as events
-* Interpret `then` clauses in transition blocks as postconditions
-* Interpret `given` clauses in invariant blocks as conditions
-* Interpret `then` clauses in invariant blocks as facts that must hold
-* Keep relations separate from predicates
-* A predicate should describe a condition over one entity
-* A relation should describe a link between entities
+* Interpret `then` clauses in transition blocks as target states, effects, or invariant checks
+* Interpret `given` clauses in invariant blocks as structured `when` conditions
+* Interpret `then` clauses in invariant blocks as structured assertions that must hold
 * If a phrase could be interpreted in multiple plausible ways, add an ambiguity
 * Attach `sourceRefs` using AST scenario titles, phases, and clause text
 * Mark new machine-proposed items as `proposed` unless instructed otherwise
@@ -67,15 +65,16 @@ spec:
     kind: spec-ast
     version: <ast.version>
 
-domain:
-  entities: []
-  relations: []
-
-stateMachine:
-  state: []
+model:
+  id: <short-name>
+  initial: <initial-state-id>
+  context: {}
+  facts: []
+  states: []
+  events: []
   transitions: []
-  invariants: []
 
+invariants: []
 ambiguities: []
 notes: []
 ```
