@@ -1,77 +1,38 @@
-#!/usr/bin/env node
-
 import { readFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { resolve } from "node:path";
 
-import Ajv2020 from "ajv/dist/2020.js";
-import { parseDocument } from "yaml";
+import { Ajv2020, type AnySchema, type ErrorObject } from "ajv/dist/2020.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, "..");
-const defaultSchemaPath = resolve(repoRoot, "schemas/interpretation.schema.json");
-const defaultInterpretationPath = resolve(repoRoot, "examples/shopping-basket/interpretation.yml");
+import { defaultSchemaPath } from "./paths.js";
+import type { ValidationError, ValidationResult } from "./types.js";
+
 const allowedSourceRefKeys = new Set(["scenario", "phase", "clause"]);
 
-export async function validateInterpretationFile(filePath, options = {}) {
-  const resolvedFilePath = resolve(filePath);
+export async function validateInterpretation(data: unknown, options: { schemaPath?: string } = {}): Promise<ValidationResult> {
   const schemaPath = options.schemaPath ? resolve(options.schemaPath) : defaultSchemaPath;
-  const errors = [];
-  let source;
-
-  try {
-    source = await readFile(resolvedFilePath, "utf8");
-  } catch (error) {
-    return {
-      ok: false,
-      errors: [{ path: "$", message: `Could not read ${resolvedFilePath}: ${error.message}` }]
-    };
-  }
-
-  const document = parseDocument(source, { prettyErrors: false });
-
-  for (const error of document.errors) {
-    errors.push({ path: "$", message: `YAML parse error: ${firstLine(error.message)}` });
-  }
-
-  if (errors.length > 0) {
-    return { ok: false, errors };
-  }
-
-  let data;
-  try {
-    data = document.toJSON();
-  } catch (error) {
-    return {
-      ok: false,
-      errors: [{ path: "$", message: `YAML conversion error: ${firstLine(error.message)}` }]
-    };
-  }
-
-  const schema = JSON.parse(await readFile(schemaPath, "utf8"));
-  errors.push(...validateAgainstSchema(data, schema));
-  errors.push(...validateStructure(data));
+  const schema = JSON.parse(await readFile(schemaPath, "utf8")) as unknown;
+  const errors = [...validateAgainstSchema(data, schema), ...validateStructure(data)];
 
   return { ok: errors.length === 0, errors };
 }
 
-export function validateAgainstSchema(data, schema) {
+export function validateAgainstSchema(data: unknown, schema: unknown): ValidationError[] {
   const ajv = new Ajv2020({ allErrors: true, strict: false });
-  const validate = ajv.compile(schema);
+  const validate = ajv.compile(schema as AnySchema);
 
   if (validate(data)) {
     return [];
   }
 
-  return validate.errors.map((error) => ({
+  return (validate.errors ?? []).map((error: ErrorObject) => ({
     path: ajvErrorPath(error),
     message: ajvErrorMessage(error)
   }));
 }
 
-export function validateStructure(data) {
-  const errors = [];
-  const model = data?.model;
+export function validateStructure(data: unknown): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const model = isRecord(data) ? data.model : undefined;
 
   validateNotes(data, errors);
   validateSourceRefs(data, "$", errors);
@@ -92,13 +53,13 @@ export function validateStructure(data) {
   }
 
   validateTransitions(model.transitions, contextKeys, states, events, errors);
-  validateInvariants(data.invariants, contextKeys, states, errors);
+  validateInvariants(isRecord(data) ? data.invariants : undefined, contextKeys, states, errors);
 
   return errors;
 }
 
-function validateNotes(data, errors) {
-  if (!Object.hasOwn(data ?? {}, "notes")) {
+function validateNotes(data: unknown, errors: ValidationError[]): void {
+  if (!isRecord(data) || !Object.hasOwn(data, "notes")) {
     return;
   }
 
@@ -114,7 +75,7 @@ function validateNotes(data, errors) {
   });
 }
 
-function validateSourceRefs(value, path, errors) {
+function validateSourceRefs(value: unknown, path: string, errors: ValidationError[]): void {
   if (Array.isArray(value)) {
     value.forEach((item, index) => validateSourceRefs(item, `${path}[${index}]`, errors));
     return;
@@ -138,7 +99,7 @@ function validateSourceRefs(value, path, errors) {
           if (!allowedSourceRefKeys.has(key)) {
             errors.push({
               path: `${sourceRefsPath}[${index}].${key}`,
-              message: `sourceRefs may only contain scenario, phase, and clause`
+              message: "sourceRefs may only contain scenario, phase, and clause"
             });
           }
         }
@@ -151,7 +112,13 @@ function validateSourceRefs(value, path, errors) {
   }
 }
 
-function validateTransitions(transitions, contextKeys, states, events, errors) {
+function validateTransitions(
+  transitions: unknown,
+  contextKeys: Set<string>,
+  states: Set<string>,
+  events: Set<string>,
+  errors: ValidationError[]
+): void {
   if (!Array.isArray(transitions)) {
     return;
   }
@@ -193,7 +160,7 @@ function validateTransitions(transitions, contextKeys, states, events, errors) {
   });
 }
 
-function validateInvariants(invariants, contextKeys, states, errors) {
+function validateInvariants(invariants: unknown, contextKeys: Set<string>, states: Set<string>, errors: ValidationError[]): void {
   if (!Array.isArray(invariants)) {
     return;
   }
@@ -214,7 +181,13 @@ function validateInvariants(invariants, contextKeys, states, errors) {
   });
 }
 
-function validateCondition(condition, path, contextKeys, states, errors) {
+function validateCondition(
+  condition: unknown,
+  path: string,
+  contextKeys: Set<string>,
+  states: Set<string>,
+  errors: ValidationError[]
+): void {
   if (!isRecord(condition)) {
     return;
   }
@@ -240,7 +213,7 @@ function validateCondition(condition, path, contextKeys, states, errors) {
   }
 }
 
-function validateEffect(effect, path, contextKeys, errors) {
+function validateEffect(effect: unknown, path: string, contextKeys: Set<string>, errors: ValidationError[]): void {
   if (!isRecord(effect)) {
     return;
   }
@@ -250,13 +223,13 @@ function validateEffect(effect, path, contextKeys, errors) {
   }
 }
 
-function collectStateIds(states) {
-  const ids = new Set();
+function collectStateIds(states: unknown): Set<string> {
+  const ids = new Set<string>();
   collectStateIdsInto(states, ids);
   return ids;
 }
 
-function collectStateIdsInto(states, ids) {
+function collectStateIdsInto(states: unknown, ids: Set<string>): void {
   if (!Array.isArray(states)) {
     return;
   }
@@ -274,7 +247,7 @@ function collectStateIdsInto(states, ids) {
   }
 }
 
-function readIds(items) {
+function readIds(items: unknown): string[] {
   if (!Array.isArray(items)) {
     return [];
   }
@@ -282,37 +255,33 @@ function readIds(items) {
   return items.flatMap((item) => (isRecord(item) && typeof item.id === "string" ? [item.id] : []));
 }
 
-function formatErrors(filePath, errors) {
-  return [`${filePath} failed validation:`, ...errors.map((error) => `  - ${error.path}: ${error.message}`)].join("\n");
-}
-
-function ajvErrorPath(error) {
+function ajvErrorPath(error: ErrorObject): string {
   let path = jsonPointerToPath(error.instancePath);
 
-  if (error.keyword === "required" && error.params?.missingProperty) {
+  if (error.keyword === "required" && typeof error.params?.missingProperty === "string") {
     path = appendPath(path, error.params.missingProperty);
   }
 
-  if (error.keyword === "additionalProperties" && error.params?.additionalProperty) {
+  if (error.keyword === "additionalProperties" && typeof error.params?.additionalProperty === "string") {
     path = appendPath(path, error.params.additionalProperty);
   }
 
   return path;
 }
 
-function ajvErrorMessage(error) {
-  if (error.keyword === "required" && error.params?.missingProperty) {
+function ajvErrorMessage(error: ErrorObject): string {
+  if (error.keyword === "required" && typeof error.params?.missingProperty === "string") {
     return `Missing required property "${error.params.missingProperty}"`;
   }
 
-  if (error.keyword === "additionalProperties" && error.params?.additionalProperty) {
+  if (error.keyword === "additionalProperties" && typeof error.params?.additionalProperty === "string") {
     return `Unexpected property "${error.params.additionalProperty}"`;
   }
 
   return error.message ?? `Schema validation failed for keyword "${error.keyword}"`;
 }
 
-function jsonPointerToPath(pointer) {
+function jsonPointerToPath(pointer: string): string {
   if (!pointer) {
     return "$";
   }
@@ -323,7 +292,7 @@ function jsonPointerToPath(pointer) {
     .reduce((path, segment) => appendPath(path, segment.replaceAll("~1", "/").replaceAll("~0", "~")), "$");
 }
 
-function appendPath(path, key) {
+function appendPath(path: string, key: string): string {
   if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key)) {
     return `${path}.${key}`;
   }
@@ -331,31 +300,6 @@ function appendPath(path, key) {
   return `${path}[${JSON.stringify(key)}]`;
 }
 
-function isRecord(value) {
+function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function firstLine(message) {
-  return message.split("\n")[0];
-}
-
-async function main(args) {
-  const filePaths = args.length > 0 ? args : [defaultInterpretationPath];
-  let failed = false;
-
-  for (const filePath of filePaths) {
-    const result = await validateInterpretationFile(filePath);
-    if (result.ok) {
-      console.log(`${filePath} passed validation`);
-    } else {
-      failed = true;
-      console.error(formatErrors(filePath, result.errors));
-    }
-  }
-
-  return failed ? 1 : 0;
-}
-
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  process.exitCode = await main(process.argv.slice(2));
 }

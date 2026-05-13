@@ -3,13 +3,14 @@
   "private": true,
   "type": "module",
   "workspaces": [
+    "packages/interpreter",
     "packages/parser"
   ],
   "scripts": {
     "build": "npm run build --workspaces",
     "sync:grammar": "node scripts/sync-parser-grammar.mjs",
-    "validate:interpretation": "node scripts/validate-interpretation.mjs",
-    "test": "node --test test/*.test.mjs && npm run test --workspaces"
+    "validate:interpretation": "npm --workspace @defx/spec-interpreter run validate -- ../../examples/shopping-basket/interpretation.yml",
+    "test": "npm run test --workspaces"
   },
   "engines": {
     "node": ">=22"
