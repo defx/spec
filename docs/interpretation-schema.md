@@ -138,7 +138,7 @@ event data that guards or effects need to inspect.
 A transition records:
 
 * `from`: the source state id
-* `on`: the event id
+* `event`: the event id
 * `to`: the target state id, or `null` for internal/context-only transitions
 * `guard`: an optional structured condition
 * `effects`: context assignments, fact assertions, fact clearing, or named

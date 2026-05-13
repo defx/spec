@@ -372,7 +372,7 @@
     },
     "transition": {
       "type": "object",
-      "required": ["id", "name", "from", "on", "sourceRefs"],
+      "required": ["id", "name", "from", "event", "sourceRefs"],
       "additionalProperties": false,
       "properties": {
         "id": {
@@ -385,7 +385,7 @@
         "from": {
           "$ref": "#/$defs/termId"
         },
-        "on": {
+        "event": {
           "$ref": "#/$defs/termId"
         },
         "to": {
