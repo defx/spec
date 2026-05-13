@@ -80,7 +80,7 @@ export function validateStructure(data) {
     return errors;
   }
 
-  const facts = new Set(readIds(model.facts));
+  const contextKeys = new Set(Object.keys(isRecord(model.context) ? model.context : {}));
   const states = collectStateIds(model.states);
   const events = new Set(readIds(model.events));
 
@@ -91,9 +91,8 @@ export function validateStructure(data) {
     });
   }
 
-  validateStates(model.states, "$.model.states", facts, errors);
-  validateTransitions(model.transitions, facts, states, events, errors);
-  validateInvariants(data.invariants, facts, states, errors);
+  validateTransitions(model.transitions, contextKeys, states, events, errors);
+  validateInvariants(data.invariants, contextKeys, states, errors);
 
   return errors;
 }
@@ -152,33 +151,7 @@ function validateSourceRefs(value, path, errors) {
   }
 }
 
-function validateStates(states, path, facts, errors) {
-  if (!Array.isArray(states)) {
-    return;
-  }
-
-  states.forEach((state, index) => {
-    const statePath = `${path}[${index}]`;
-    if (!isRecord(state)) {
-      return;
-    }
-
-    if (Array.isArray(state.facts)) {
-      state.facts.forEach((fact, factIndex) => {
-        if (typeof fact === "string" && !facts.has(fact)) {
-          errors.push({
-            path: `${statePath}.facts[${factIndex}]`,
-            message: `Fact "${fact}" is not defined in model.facts`
-          });
-        }
-      });
-    }
-
-    validateStates(state.states, `${statePath}.states`, facts, errors);
-  });
-}
-
-function validateTransitions(transitions, facts, states, events, errors) {
+function validateTransitions(transitions, contextKeys, states, events, errors) {
   if (!Array.isArray(transitions)) {
     return;
   }
@@ -210,17 +183,17 @@ function validateTransitions(transitions, facts, states, events, errors) {
       });
     }
 
-    validateCondition(transition.guard, `${transitionPath}.guard`, facts, states, errors);
+    validateCondition(transition.guard, `${transitionPath}.guard`, contextKeys, states, errors);
 
     if (Array.isArray(transition.effects)) {
       transition.effects.forEach((effect, effectIndex) => {
-        validateEffect(effect, `${transitionPath}.effects[${effectIndex}]`, facts, errors);
+        validateEffect(effect, `${transitionPath}.effects[${effectIndex}]`, contextKeys, errors);
       });
     }
   });
 }
 
-function validateInvariants(invariants, facts, states, errors) {
+function validateInvariants(invariants, contextKeys, states, errors) {
   if (!Array.isArray(invariants)) {
     return;
   }
@@ -231,51 +204,49 @@ function validateInvariants(invariants, facts, states, errors) {
       return;
     }
 
-    validateCondition(invariant.when, `${invariantPath}.when`, facts, states, errors);
+    validateCondition(invariant.when, `${invariantPath}.when`, contextKeys, states, errors);
 
     if (Array.isArray(invariant.assert)) {
       invariant.assert.forEach((condition, conditionIndex) => {
-        validateCondition(condition, `${invariantPath}.assert[${conditionIndex}]`, facts, states, errors);
+        validateCondition(condition, `${invariantPath}.assert[${conditionIndex}]`, contextKeys, states, errors);
       });
     }
   });
 }
 
-function validateCondition(condition, path, facts, states, errors) {
+function validateCondition(condition, path, contextKeys, states, errors) {
   if (!isRecord(condition)) {
     return;
-  }
-
-  if (typeof condition.fact === "string" && !facts.has(condition.fact)) {
-    errors.push({ path: `${path}.fact`, message: `Fact "${condition.fact}" is not defined in model.facts` });
   }
 
   if (typeof condition.state === "string" && !states.has(condition.state)) {
     errors.push({ path: `${path}.state`, message: `State "${condition.state}" is not defined in model.states` });
   }
 
+  if (typeof condition.context === "string" && !contextKeys.has(condition.context)) {
+    errors.push({ path: `${path}.context`, message: `Context "${condition.context}" is not defined in model.context` });
+  }
+
   if (Array.isArray(condition.all)) {
-    condition.all.forEach((child, index) => validateCondition(child, `${path}.all[${index}]`, facts, states, errors));
+    condition.all.forEach((child, index) => validateCondition(child, `${path}.all[${index}]`, contextKeys, states, errors));
   }
 
   if (Array.isArray(condition.any)) {
-    condition.any.forEach((child, index) => validateCondition(child, `${path}.any[${index}]`, facts, states, errors));
+    condition.any.forEach((child, index) => validateCondition(child, `${path}.any[${index}]`, contextKeys, states, errors));
   }
 
   if (Object.hasOwn(condition, "not")) {
-    validateCondition(condition.not, `${path}.not`, facts, states, errors);
+    validateCondition(condition.not, `${path}.not`, contextKeys, states, errors);
   }
 }
 
-function validateEffect(effect, path, facts, errors) {
+function validateEffect(effect, path, contextKeys, errors) {
   if (!isRecord(effect)) {
     return;
   }
 
-  for (const key of ["assertFact", "clearFact"]) {
-    if (typeof effect[key] === "string" && !facts.has(effect[key])) {
-      errors.push({ path: `${path}.${key}`, message: `Fact "${effect[key]}" is not defined in model.facts` });
-    }
+  if (typeof effect.assign === "string" && !contextKeys.has(effect.assign)) {
+    errors.push({ path: `${path}.assign`, message: `Context "${effect.assign}" is not defined in model.context` });
   }
 }
 

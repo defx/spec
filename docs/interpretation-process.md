@@ -67,7 +67,6 @@ The agent should identify:
 
 * finite states and the initial state
 * context values that represent extended state
-* facts that preserve important domain phrasing
 * events derived from AST transition blocks
 * transitions derived from AST transition blocks
 * guards and effects needed to make transitions deterministic
@@ -76,7 +75,7 @@ The agent should identify:
 
 For transition blocks:
 
-* `given` clauses become candidate source states, guards, or context facts
+* `given` clauses become candidate source states, guards, or context conditions
 * `when` clauses become candidate events
 * `then` clauses become candidate target states, effects, or invariant checks
 
@@ -90,8 +89,8 @@ For invariant blocks:
 AI-assisted interpretation is advisory until reviewed. A human reviewer should
 check whether:
 
-* state names, event names, and facts preserve the domain language
-* context values are not over-extracted
+* state names, event names, context descriptions, and source references preserve the domain language
+* context values are not over-extracted or used where a finite state would be clearer
 * transitions match the scenario intent
 * guards and effects are explicit enough for deterministic projection
 * invariants describe durable rules rather than events

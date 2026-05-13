@@ -19,109 +19,37 @@ model:
   description: Behavioural model for basket contents, totals, promo-code feedback, and checkout start.
   initial: empty
   context:
-    productCount: 0
-    productQuantity: 0
-    productPrice: 0
-    newProductPrice: 0
-    discountAmount: 0
-    hasDiscount: false
-    promoCodeStatus: null
-    promoCodeErrorVisible: false
-    checkoutButton: disabled
-    checkoutUsesBasket: false
-  facts:
-    - id: basket-empty
-      phrase: basket is empty
-      status: accepted
-      sourceRefs:
-        - scenario: Add a product to an empty basket
-          phase: given
-          clause: basket is empty
-        - scenario: Checkout button is disabled for an empty basket
-          phase: given
-          clause: basket is empty
-    - id: basket-contains-product
-      phrase: basket contains product
+    productCount:
+      type: number
+      initial: 0
+      description: Number of product units represented in the basket.
       status: accepted
       sourceRefs:
         - scenario: Add a product to an empty basket
           phase: then
-          clause: basket contains product
-        - scenario: Start checkout from a non-empty basket
-          phase: given
-          clause: basket contains product
-    - id: basket-contains-existing-product
-      phrase: basket contains existing product
-      status: accepted
-      sourceRefs:
-        - scenario: Add a second product to the basket
-          phase: given
-          clause: basket contains existing product
-    - id: basket-contains-new-product
-      phrase: basket contains new product
-      status: accepted
-      sourceRefs:
+          clause: basket count equals 1
         - scenario: Add a second product to the basket
           phase: then
-          clause: basket contains new product
-    - id: basket-has-discount
-      phrase: basket has discount
-      status: accepted
-      sourceRefs:
-        - scenario: Apply a valid promo code
+          clause: basket count equals 2
+        - scenario: Remove a product from the basket
           phase: then
-          clause: basket has discount
-    - id: promo-code-valid
-      phrase: promo code is valid
+          clause: basket count equals 0
+    productQuantity:
+      type: number
+      initial: 0
+      description: Quantity of the scenario-local product.
       status: accepted
       sourceRefs:
-        - scenario: Apply a valid promo code
-          phase: when
-          clause: promo code is valid
-    - id: promo-code-invalid
-      phrase: promo code is invalid
-      status: accepted
-      sourceRefs:
-        - scenario: Reject an invalid promo code
-          phase: when
-          clause: promo code is invalid
-    - id: promo-code-error-visible
-      phrase: promo code error is visible
-      status: accepted
-      sourceRefs:
-        - scenario: Reject an invalid promo code
-          phase: then
-          clause: promo code error is visible
-    - id: checkout-started
-      phrase: checkout is started
-      status: accepted
-      sourceRefs:
-        - scenario: Start checkout from a non-empty basket
-          phase: then
-          clause: checkout is started
-    - id: checkout-uses-basket
-      phrase: checkout uses basket
-      status: accepted
-      sourceRefs:
-        - scenario: Start checkout from a non-empty basket
-          phase: then
-          clause: checkout uses basket
-    - id: checkout-button-disabled
-      phrase: checkout button is disabled
-      status: accepted
-      sourceRefs:
-        - scenario: Checkout button is disabled for an empty basket
-          phase: then
-          clause: checkout button is disabled
-    - id: checkout-button-enabled
-      phrase: checkout button is enabled
-      status: accepted
-      sourceRefs:
-        - scenario: Checkout button is enabled for a non-empty basket
-          phase: then
-          clause: checkout button is enabled
-    - id: basket-total-equals-product-price
-      phrase: basket total equals product price
+        - scenario: Increase the quantity of an existing product
+          phase: given
+          clause: product quantity equals 1
+        - scenario: Decrease the quantity of a product
+          phase: given
+          clause: product quantity equals 2
+    basketTotal:
+      type: expression
+      initial: "0"
+      description: Interpreted basket total, kept symbolic because the spec does not provide concrete prices.
       status: accepted
       sourceRefs:
         - scenario: Add a product to an empty basket
@@ -130,58 +58,112 @@ model:
         - scenario: Basket total equals the sum of all products
           phase: then
           clause: basket total equals product price
-    - id: basket-total-equals-two-products
-      phrase: basket total equals existing product price plus new product price
-      status: accepted
-      sourceRefs:
-        - scenario: Add a second product to the basket
+        - scenario: Basket total reflects discount when a promo code is applied
           phase: then
-          clause: basket total equals existing product price plus new product price
-    - id: basket-total-reflects-quantity
-      phrase: basket total equals product price multiplied by 2
-      status: accepted
-      sourceRefs:
-        - scenario: Increase the quantity of an existing product
-          phase: then
-          clause: basket total equals product price multiplied by 2
-    - id: basket-total-reflects-discount
-      phrase: basket total equals product price minus discount amount
+          clause: basket total equals product price minus discount amount
+    hasDiscount:
+      type: boolean
+      initial: false
+      description: Whether the basket currently has an applied discount.
       status: accepted
       sourceRefs:
         - scenario: Apply a valid promo code
           phase: then
-          clause: basket total equals product price minus discount amount
+          clause: basket has discount
         - scenario: Basket total reflects discount when a promo code is applied
+          phase: given
+          clause: basket has discount
+    promoCodeStatus:
+      type: enum
+      initial: none
+      values:
+        - none
+        - valid
+        - invalid
+      description: Interpreted validity of the submitted promo code.
+      status: accepted
+      sourceRefs:
+        - scenario: Apply a valid promo code
+          phase: when
+          clause: promo code is valid
+        - scenario: Reject an invalid promo code
+          phase: when
+          clause: promo code is invalid
+    promoCodeErrorVisible:
+      type: boolean
+      initial: false
+      description: Whether the promo-code error is visible.
+      status: accepted
+      sourceRefs:
+        - scenario: Reject an invalid promo code
           phase: then
-          clause: basket total equals product price minus discount amount
+          clause: promo code error is visible
+    checkoutButton:
+      type: enum
+      initial: disabled
+      values:
+        - disabled
+        - enabled
+      description: Whether checkout can currently be started.
+      status: accepted
+      sourceRefs:
+        - scenario: Checkout button is disabled for an empty basket
+          phase: then
+          clause: checkout button is disabled
+        - scenario: Checkout button is enabled for a non-empty basket
+          phase: then
+          clause: checkout button is enabled
+    checkoutUsesBasket:
+      type: boolean
+      initial: false
+      description: Whether a started checkout uses the current basket.
+      status: accepted
+      sourceRefs:
+        - scenario: Start checkout from a non-empty basket
+          phase: then
+          clause: checkout uses basket
   states:
     - id: empty
       name: empty basket
-      facts:
-        - basket-empty
-        - checkout-button-disabled
+      description: Basket contains no products.
       status: accepted
+      sourceRefs:
+        - scenario: Add a product to an empty basket
+          phase: given
+          clause: basket is empty
+        - scenario: Checkout button is disabled for an empty basket
+          phase: given
+          clause: basket is empty
     - id: has-product
       name: basket with one product
-      facts:
-        - basket-contains-product
-        - checkout-button-enabled
+      description: Basket contains a product and can be checked out.
       status: accepted
+      sourceRefs:
+        - scenario: Add a product to an empty basket
+          phase: then
+          clause: basket contains product
+        - scenario: Checkout button is enabled for a non-empty basket
+          phase: given
+          clause: basket contains product
     - id: has-multiple-products
       name: basket with multiple products
-      facts:
-        - basket-contains-product
-        - basket-contains-existing-product
-        - basket-contains-new-product
-        - checkout-button-enabled
+      description: Basket contains existing and new products.
       status: accepted
+      sourceRefs:
+        - scenario: Add a second product to the basket
+          phase: then
+          clause: basket contains new product
     - id: checking-out
       name: checkout started
-      facts:
-        - basket-contains-product
-        - checkout-started
-        - checkout-uses-basket
+      description: Checkout has started using the basket.
       status: accepted
+      sourceRefs:
+        - scenario: Start checkout from a non-empty basket
+          phase: then
+          clause: checkout is started
+        - scenario: Start checkout from a non-empty basket
+          phase: then
+          clause: checkout uses basket
   events:
     - id: add-product
       name: add product
@@ -264,11 +246,10 @@ model:
           value: 1
         - assign: productQuantity
           value: 1
+        - assign: basketTotal
+          value: product price
         - assign: checkoutButton
           value: enabled
-        - assertFact: basket-contains-product
-        - assertFact: basket-total-equals-product-price
-        - clearFact: basket-empty
       status: accepted
       sourceRefs:
         - scenario: Add a product to an empty basket
@@ -279,18 +260,17 @@ model:
       to: has-multiple-products
       guard:
         all:
-          - fact: basket-contains-product
+          - state: has-product
           - context: productCount
             operator: equals
             value: 1
       effects:
         - assign: productCount
           value: 2
+        - assign: basketTotal
+          value: existing product price plus new product price
         - assign: checkoutButton
           value: enabled
-        - assertFact: basket-contains-existing-product
-        - assertFact: basket-contains-new-product
-        - assertFact: basket-total-equals-two-products
       status: accepted
       sourceRefs:
         - scenario: Add a second product to the basket
@@ -301,7 +281,7 @@ model:
       to: has-product
       guard:
         all:
-          - fact: basket-contains-product
+          - state: has-product
           - context: productQuantity
             operator: equals
             value: 1
@@ -310,7 +290,8 @@ model:
           value: 2
         - assign: productQuantity
           value: 2
-        - assertFact: basket-total-reflects-quantity
+        - assign: basketTotal
+          value: product price multiplied by 2
       status: accepted
       sourceRefs:
         - scenario: Increase the quantity of an existing product
@@ -321,7 +302,7 @@ model:
       to: has-product
       guard:
         all:
-          - fact: basket-contains-product
+          - state: has-product
           - context: productQuantity
             operator: equals
             value: 2
@@ -330,8 +311,8 @@ model:
           value: 1
         - assign: productQuantity
           value: 1
-        - assertFact: basket-total-equals-product-price
-        - clearFact: basket-total-reflects-quantity
+        - assign: basketTotal
+          value: product price
       status: accepted
       sourceRefs:
         - scenario: Decrease the quantity of a product
@@ -342,7 +323,7 @@ model:
       to: empty
       guard:
         all:
-          - fact: basket-contains-product
+          - state: has-product
           - context: productQuantity
             operator: equals
             value: 1
@@ -351,13 +332,12 @@ model:
           value: 0
         - assign: productQuantity
           value: 0
+        - assign: basketTotal
+          value: "0"
         - assign: hasDiscount
           value: false
         - assign: checkoutButton
           value: disabled
-        - assertFact: basket-empty
-        - assertFact: checkout-button-disabled
-        - clearFact: basket-contains-product
       status: accepted
       sourceRefs:
         - scenario: Remove a product when its quantity reaches zero
@@ -368,7 +348,7 @@ model:
       to: empty
       guard:
         all:
-          - fact: basket-contains-product
+          - state: has-product
           - context: productCount
             operator: equals
             value: 1
@@ -377,13 +357,12 @@ model:
           value: 0
         - assign: productQuantity
           value: 0
+        - assign: basketTotal
+          value: "0"
         - assign: hasDiscount
           value: false
         - assign: checkoutButton
           value: disabled
-        - assertFact: basket-empty
-        - assertFact: checkout-button-disabled
-        - clearFact: basket-contains-product
       status: accepted
       sourceRefs:
         - scenario: Remove a product from the basket
@@ -393,7 +372,7 @@ model:
       event: submit-valid-promo-code
       to: has-product
       guard:
-        fact: basket-contains-product
+        state: has-product
       effects:
         - assign: hasDiscount
           value: true
@@ -401,9 +380,8 @@ model:
           value: valid
         - assign: promoCodeErrorVisible
           value: false
-        - assertFact: promo-code-valid
-        - assertFact: basket-has-discount
-        - assertFact: basket-total-reflects-discount
+        - assign: basketTotal
+          value: product price minus discount amount
       status: accepted
       sourceRefs:
         - scenario: Apply a valid promo code
@@ -413,15 +391,14 @@ model:
       event: submit-invalid-promo-code
       to: has-product
       guard:
-        fact: basket-contains-product
+        state: has-product
       effects:
         - assign: promoCodeStatus
           value: invalid
         - assign: promoCodeErrorVisible
           value: true
-        - assertFact: promo-code-invalid
-        - assertFact: promo-code-error-visible
-        - assertFact: basket-total-equals-product-price
+        - assign: basketTotal
+          value: product price
       status: accepted
       sourceRefs:
         - scenario: Reject an invalid promo code
@@ -431,12 +408,10 @@ model:
       event: start-checkout
       to: checking-out
       guard:
-        fact: basket-contains-product
+        state: has-product
       effects:
         - assign: checkoutUsesBasket
           value: true
-        - assertFact: checkout-started
-        - assertFact: checkout-uses-basket
       status: accepted
       sourceRefs:
         - scenario: Start checkout from a non-empty basket
@@ -447,7 +422,6 @@ invariants:
     when:
       state: empty
     assert:
-      - fact: checkout-button-disabled
       - context: checkoutButton
         operator: equals
         value: disabled
@@ -462,7 +436,6 @@ invariants:
         - state: has-multiple-products
         - state: checking-out
     assert:
-      - fact: checkout-button-enabled
       - context: checkoutButton
         operator: equals
         value: enabled
@@ -472,9 +445,11 @@ invariants:
   - id: basket-total-equals-sum-of-products
     name: Basket total equals the sum of all products
     when:
-      fact: basket-contains-product
+      state: has-product
     assert:
-      - fact: basket-total-equals-product-price
+      - context: basketTotal
+        operator: equals
+        value: product price
     status: accepted
     sourceRefs:
       - scenario: Basket total equals the sum of all products
@@ -482,13 +457,14 @@ invariants:
     name: Basket total reflects discount when a promo code is applied
     when:
       all:
-        - fact: basket-contains-product
-        - fact: basket-has-discount
+        - state: has-product
+        - context: hasDiscount
+          operator: equals
+          value: true
     assert:
-      - fact: basket-total-reflects-discount
-      - context: hasDiscount
+      - context: basketTotal
         operator: equals
-        value: true
+        value: product price minus discount amount
     status: accepted
     sourceRefs:
       - scenario: Basket total reflects discount when a promo code is applied
@@ -502,10 +478,10 @@ ambiguities:
       - Promote count and quantity milestones to explicit finite states.
   - id: product-vs-existing-new-product
     phrase: existing product / new product
-    note: The spec distinguishes product instances in some scenarios, but this interpretation keeps product identity mostly in facts and context.
+    note: The spec distinguishes product instances in some scenarios, but this interpretation keeps product identity mostly in state descriptions and context.
     options:
-      - Model product as a single scenario-local product with facts for existing and new products.
-      - Model existing product and new product as separate entities in a richer future projection.
+      - Model product as a single scenario-local product.
+      - Model existing product and new product as separate entries in a products collection.
   - id: promo-code-event-splitting
     phrase: the user submits promo code / promo code is valid / promo code is invalid
     note: The current model splits valid and invalid promo-code submission into separate events because the schema does not yet model event payload guards.
@@ -521,5 +497,5 @@ ambiguities:
 
 notes:
   - The example uses finite states for broad basket lifecycle and context for quantities, totals, discount, and UI signals.
-  - Facts preserve authored domain language and provide reviewable anchors for guards, effects, and invariants.
+  - Context definitions preserve authored domain language and provide reviewable anchors for guards, effects, and invariants.
   - The projected XState model would compile transitions into state-level event handlers and context assignments.

@@ -58,15 +58,15 @@ describe("validateInterpretationFile", () => {
     });
   });
 
-  it("rejects missing fact references", async () => {
+  it("rejects missing context references", async () => {
     const data = await readFixtureData();
-    data.model.transitions[0].effects.push({ assertFact: "missing-fact" });
+    data.model.transitions[0].effects.push({ assign: "missingContext", value: 1 });
 
     await withTempFile(YAML.stringify(data), async (filePath) => {
       const result = await validateInterpretationFile(filePath);
 
       assert.equal(result.ok, false);
-      assertError(result, "$.model.transitions[0].effects[6].assertFact", /Fact "missing-fact" is not defined/);
+      assertError(result, "$.model.transitions[0].effects[4].assign", /Context "missingContext" is not defined/);
     });
   });
 

@@ -120,7 +120,7 @@ An interpretation document gives humans and tools a shared place to inspect:
 * accepted states and contextual data
 * accepted events and transitions
 * accepted guards, effects, and invariants
-* domain facts and phrases used to explain the model
+* domain descriptions and source references used to explain the model
 * ambiguities that still need review
 
 This prevents meaning from being hidden inside an AI response or a tool-local

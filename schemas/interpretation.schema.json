@@ -188,16 +188,9 @@
         "context": {
           "type": "object",
           "additionalProperties": {
-            "$ref": "#/$defs/jsonValue"
+            "$ref": "#/$defs/contextEntry"
           },
           "default": {}
-        },
-        "facts": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/fact"
-          },
-          "default": []
         },
         "states": {
           "type": "array",
@@ -232,20 +225,27 @@
         }
       }
     },
-    "fact": {
+    "contextEntry": {
       "type": "object",
-      "required": ["id", "phrase"],
+      "required": ["type", "initial"],
       "additionalProperties": false,
       "properties": {
-        "id": {
-          "$ref": "#/$defs/termId"
-        },
-        "phrase": {
+        "type": {
           "type": "string",
-          "minLength": 1
+          "enum": ["string", "number", "boolean", "enum", "expression", "object", "array"]
+        },
+        "initial": {
+          "$ref": "#/$defs/jsonValue"
         },
         "description": {
           "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/jsonValue"
+          },
+          "default": []
         },
         "status": {
           "$ref": "#/$defs/reviewStatus"
@@ -286,13 +286,6 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/state"
-          },
-          "default": []
-        },
-        "facts": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/termId"
           },
           "default": []
         },
@@ -423,9 +416,6 @@
     "condition": {
       "oneOf": [
         {
-          "$ref": "#/$defs/factCondition"
-        },
-        {
           "$ref": "#/$defs/stateCondition"
         },
         {
@@ -441,16 +431,6 @@
           "$ref": "#/$defs/notCondition"
         }
       ]
-    },
-    "factCondition": {
-      "type": "object",
-      "required": ["fact"],
-      "additionalProperties": false,
-      "properties": {
-        "fact": {
-          "$ref": "#/$defs/termId"
-        }
-      }
     },
     "stateCondition": {
       "type": "object",
@@ -535,12 +515,6 @@
           "$ref": "#/$defs/assignEffect"
         },
         {
-          "$ref": "#/$defs/assertFactEffect"
-        },
-        {
-          "$ref": "#/$defs/clearFactEffect"
-        },
-        {
           "$ref": "#/$defs/actionEffect"
         }
       ]
@@ -556,26 +530,6 @@
         },
         "value": {
           "$ref": "#/$defs/jsonValue"
-        }
-      }
-    },
-    "assertFactEffect": {
-      "type": "object",
-      "required": ["assertFact"],
-      "additionalProperties": false,
-      "properties": {
-        "assertFact": {
-          "$ref": "#/$defs/termId"
-        }
-      }
-    },
-    "clearFactEffect": {
-      "type": "object",
-      "required": ["clearFact"],
-      "additionalProperties": false,
-      "properties": {
-        "clearFact": {
-          "$ref": "#/$defs/termId"
         }
       }
     },

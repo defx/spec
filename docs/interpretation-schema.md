@@ -64,8 +64,11 @@ spec:
 model:
   id: shopping-basket
   initial: empty
-  context: {}
-  facts: []
+  context:
+    basketCount:
+      type: number
+      initial: 0
+      description: Number of product units represented in the basket.
   states: []
   events: []
   transitions: []
@@ -98,17 +101,31 @@ The model has:
 
 * `id`: a stable model identifier
 * `initial`: the initial state id
-* `context`: extended state data that may be read by guards or updated by
-  effects
-* `facts`: domain phrases that explain states, guards, invariants, or effects
+* `context`: reviewable extended state definitions that may be read by guards
+  or updated by effects
 * `states`: finite states, optionally nested for later statechart projection
 * `events`: interpreted events, usually derived from `When` clauses
 * `transitions`: state changes triggered by events
 
 The model is not raw XState configuration. It preserves review status, source
-references, facts, and domain phrasing in ways that are useful to Spec authors.
+references, descriptions, and domain phrasing in ways that are useful to Spec authors.
 Projection tools are responsible for compiling it into XState-compatible
 configuration.
+
+## Context
+
+`model.context` defines extended state directly. Each context entry has:
+
+* `type`: `string`, `number`, `boolean`, `enum`, `expression`, `object`, or
+  `array`
+* `initial`: the initial JSON-compatible value
+* `description`: human-reviewable domain meaning
+* `values`: allowed values for enum-like context
+* `sourceRefs`: links back to parser-derived scenarios and clauses
+
+Context replaces the earlier draft `facts` layer. Reviewability should live on
+the state and context definitions that projection tools actually consume,
+rather than in a parallel semantic vocabulary.
 
 ## States
 
@@ -117,7 +134,6 @@ configuration.
 
 * `type`: `atomic`, `compound`, `parallel`, or `final`
 * `initial` and nested `states` for compound or parallel models
-* `facts`: references to model facts that hold in that state
 * `tags`: stable labels that may be useful during projection or testing
 * `sourceRefs`: links back to parser-derived scenarios and clauses
 
@@ -141,19 +157,17 @@ A transition records:
 * `event`: the event id
 * `to`: the target state id, or `null` for internal/context-only transitions
 * `guard`: an optional structured condition
-* `effects`: context assignments, fact assertions, fact clearing, or named
-  actions
+* `effects`: context assignments or named actions
 * `sourceRefs`: links back to the source scenario and relevant clauses
 
 This replaces the earlier draft shape of readable `preconditions` and
-`postconditions`. Readable facts are still preserved, but executable structure
-is now explicit enough for deterministic projection.
+`postconditions`. Domain meaning is preserved on state and context definitions,
+but executable structure is now explicit enough for deterministic projection.
 
 ## Conditions And Effects
 
 Guards and invariants use structured conditions. Version 1 supports:
 
-* `fact`: a referenced model fact
 * `state`: a referenced state
 * `context`: a comparison against context data
 * `all`, `any`, and `not`: recursive logical composition
@@ -161,8 +175,6 @@ Guards and invariants use structured conditions. Version 1 supports:
 Transition effects support:
 
 * `assign`: set a context path to a JSON-compatible value
-* `assertFact`: mark a fact as true after the transition
-* `clearFact`: mark a fact as false after the transition
 * `action`: reference a named projection action with optional JSON-compatible
   parameters
 
@@ -190,7 +202,7 @@ or scenario-level validation tests.
 
 Ambiguities are first-class because interpretation is not meant to hide
 assumptions inside an AI process. If a phrase could be a state, context value,
-fact, event, guard, effect, or ordinary wording, the agent should surface that
+event, guard, effect, or ordinary wording, the agent should surface that
 uncertainty rather than forcing false precision.
 
 ## Non-Goals

@@ -33,8 +33,8 @@ compile into a state machine. Do not output raw XState configuration.
 The interpretation should make these concepts explicit:
 
 1. Finite states and the initial state
-2. Context values that represent extended state
-3. Facts that preserve important domain wording
+2. Rich context definitions that represent extended state
+3. State and context descriptions that preserve important domain wording
 4. Events derived from `when` clauses
 5. Transitions from AST blocks with `kind: "transition"`
 6. Guards and effects needed to make transitions deterministic
@@ -49,10 +49,12 @@ states that a domain reviewer would naturally name, such as `empty`,
 
 Use context for quantities, values, flags, selections, identifiers, totals, and
 other extended state that would otherwise create many similar finite states.
+Each context entry should include `type`, `initial`, `description`,
+`sourceRefs`, and `values` when it is an enum.
 
-Use facts to preserve domain wording from the scenarios. Facts are review
-anchors: they explain why states, guards, effects, and invariants exist. Facts
-should use authored language where possible.
+Preserve authored domain wording in state descriptions, context descriptions,
+event phrases, source references, invariants, ambiguities, and notes. Do not
+create a separate facts vocabulary.
 
 Use structured guards and effects. Do not store transition preconditions or
 postconditions as plain strings.
@@ -64,7 +66,7 @@ ambiguities include:
 * finite state versus context
 * one event with payload versus separate events
 * one broad state versus several narrower states
-* a fact versus a context value
+* a state versus a context value
 * a scenario-local phrase versus a durable model concept
 
 ## Clause Mapping
@@ -72,10 +74,10 @@ ambiguities include:
 For transition blocks:
 
 * `given` clauses become candidate source states, guards, context conditions,
-  or supporting facts
+  or supporting source references
 * `when` clauses become events
-* `then` clauses become candidate target states, effects, facts, or invariant
-  checks
+* `then` clauses become candidate target states, effects, context assertions,
+  or invariant checks
 
 For invariant blocks:
 
@@ -129,10 +131,6 @@ Do not use `text`, `line`, `span`, or other keys in `sourceRefs`.
 Use these condition forms:
 
 ```yaml
-fact: <fact-id>
-```
-
-```yaml
 state: <state-id>
 ```
 
@@ -182,22 +180,12 @@ value: <json-compatible-value>
 ```
 
 ```yaml
-assertFact: <fact-id>
-```
-
-```yaml
-clearFact: <fact-id>
-```
-
-```yaml
 action: <action-id>
 params: {}
 ```
 
-Use `assign` for context updates, `assertFact` for facts made true by a
-transition, and `clearFact` for facts made false by a transition. Use `action`
-only when the scenario clearly implies a named side effect that cannot be
-represented as context or facts.
+Use `assign` for context updates. Use `action` only when the scenario clearly
+implies a named side effect that cannot be represented as context.
 
 ## Consistency Checks Before Returning
 
@@ -207,7 +195,8 @@ Before returning the YAML, check it against these expectations:
 * every transition `from` state exists
 * every transition `to` state exists when `to` is present and not null
 * every transition `event` exists in `model.events`
-* every referenced fact exists in `model.facts`
+* every transition `assign` target exists in `model.context`
+* every condition `context` reference exists in `model.context`
 * every invariant has a structured `when` condition and at least one structured
   assertion
 * every `sourceRefs` entry uses `clause`, not `text`
@@ -215,7 +204,8 @@ Before returning the YAML, check it against these expectations:
   `sourceRefs`
 * `notes` is an array of strings, not an array of objects
 * no old draft fields are present: `domain`, `stateMachine`, `preconditions`,
-  `postconditions`, `condition`, or `mustHold`
+  `postconditions`, `condition`, `mustHold`, `facts`, `fact`, `assertFact`, or
+  `clearFact`
 
 ## Top-Level Shape
 
@@ -238,21 +228,20 @@ spec:
 model:
   id: <short-name>
   initial: <initial-state-id>
-  context: {}
-  facts:
-    - id: <fact-id>
-      phrase: <authored domain phrase>
+  context:
+    <context-key>:
+      type: <string|number|boolean|enum|expression|object|array>
+      initial: <json-compatible-value>
+      description: <domain meaning>
       status: proposed
       sourceRefs:
         - scenario: <scenario title>
           phase: given
           clause: <clause text>
-          phase: given
-          clause: <clause text>
   states:
     - id: <state-id>
       name: <state name>
-      facts: []
+      description: <domain meaning>
       status: proposed
       sourceRefs:
         - scenario: <scenario title>
@@ -286,7 +275,9 @@ invariants:
     when:
       state: <state-id>
     assert:
-      - fact: <fact-id>
+      - context: <context-key>
+        operator: equals
+        value: <json-compatible-value>
     status: proposed
     sourceRefs:
       - scenario: <scenario title>

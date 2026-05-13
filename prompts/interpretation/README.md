@@ -27,7 +27,8 @@ To validate an extraction prompt revision:
    * `model.initial` exists in `model.states`
    * transition `from` and `to` states exist
    * transition `event` values exist in `model.events`
-   * referenced facts exist in `model.facts`
+   * transition `assign` targets and condition `context` references exist in
+     `model.context`
    * invariants use structured `when` and `assert` conditions
 9. Compare the result against the relevant checked-in example. It does not need
    to be identical, but it should make similar modelling choices or explicitly
