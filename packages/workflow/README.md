@@ -3,7 +3,8 @@
 End-to-end workflow orchestration for Spec interpretation runs.
 
 `@defx/spec-workflow` is the proposed package that coordinates the full manual
-MVP loop from `.spec` edits to an executable XState-backed inspection surface.
+MVP loop from `.spec` edits to an executable XState-backed state-model
+inspection surface.
 It is intentionally separate from the parser and interpreter packages.
 
 This package is currently a documented skeleton. It describes the intended
@@ -28,21 +29,21 @@ A run performs the mechanical parts of the end-to-end process:
 2. load the previous accepted AST snapshot, if one exists
 3. create a current AST snapshot
 4. create an AST diff/change packet
-5. create a file-based job directory for an agent
+5. update the file-based session workspace for an agent
 6. wait for or detect the agent-updated `interpretation.yml`
 7. run final validation
-8. project the interpretation into XState-compatible machine config
+8. project the interpretation into XState-backed executable state-model config
 9. load the generated config with XState for basic inspection
 10. advance the previous AST baseline after successful validation and execution
 
 ### Agent-agnostic job protocol
 
-The workflow runner does not call a specific agent API. It creates a run
-directory containing files that any capable agent can read and update.
+The workflow runner does not call a specific agent API. It maintains a session
+workspace containing files that any capable agent can read and update.
 
 The agent is expected to:
 
-- read the task instructions and AST diff
+- read the configured package prompt and AST diff
 - inspect the existing `interpretation.yml`
 - update `interpretation.yml`
 - ask the human for clarification when the source is ambiguous or inconsistent
@@ -82,7 +83,7 @@ Final validation should include:
 - interpretation YAML parsing
 - JSON Schema validation
 - structural reference validation
-- projection into XState-compatible machine config
+- projection into XState-backed executable state-model config
 - basic XState load or execution check
 
 The runner should not advance the previous AST baseline unless these final
@@ -90,14 +91,20 @@ checks pass.
 
 ### XState inspection
 
-The workflow runner uses XState as the execution target. It does not implement a
-custom state-machine runtime.
+The workflow runner uses XState as the first execution target. It does not
+implement a custom user-spec runtime.
+
+XState can support strict statechart-style projections as well as more flexible
+state-container projections built around context, events, guards, actions, and
+predictable updates. The workflow should therefore describe the user-spec output
+as an executable state model rather than implying that every spec must become a
+strict finite state machine.
 
 The MVP inspection surface should expose enough information for basic human
 review:
 
-- machine id
-- initial state
+- model id
+- initial state or mode when present
 - initial context
 - available events
 - state metadata
@@ -118,7 +125,7 @@ or another simple artifact. It does not need to be a polished simulator for MVP.
 ```
 
 It should not manage workflow snapshots, agent jobs, interpretation refs, or
-state-machine execution.
+state-model execution.
 
 ### Interpreter package
 
@@ -126,7 +133,7 @@ state-machine execution.
 
 ```text
 interpretation.yml -> validation result
-interpretation.yml -> XState-compatible config
+interpretation.yml -> XState-backed executable state-model config
 ```
 
 It should not orchestrate agent runs or snapshot state.
@@ -141,60 +148,80 @@ It should not orchestrate agent runs or snapshot state.
   -> AST diff
   -> agent job
   -> final validation
-  -> XState config
+  -> XState-backed config
   -> XState inspection
 ```
 
 It depends on parser and interpreter capabilities rather than duplicating them.
 
-## Run Directory Layout
+## Session Workspace Layout
 
-The proposed file-based job protocol uses a run directory under `.defx`.
+The proposed file-based job protocol uses one mutable session workspace under
+`.workspace`. It does not create a full copied artifact directory for every run by
+default.
 
 ```text
-.defx/
-  baselines/
-    previous.ast.json
-  runs/
-    2026-05-28T12-00-00-000Z/
-      task.md
-      input/
-        previous.ast.json
-        current.ast.json
-        ast.diff.json
-        interpretation.yml
-      output/
-        status.json
-        notes.md
-        validation.log
-        machine.config.json
-        machine.inspection.json
+.workspace/
+  session.json
+  baseline.ast.json
+  current.ast.json
+  ast.diff.json
+  run.json
+  validation.log
+  machine.config.json
+  machine.inspection.json
+  history/
+    runs.jsonl
 ```
 
 The exact paths may be configured later. For examples in this repository, a
-local `.defx` directory beside the example files is preferred:
+local `.workspace` directory beside the example files is preferred:
 
 ```text
-examples/shopping-basket/.defx/
+examples/shopping-basket/.workspace/
 ```
 
-## Task File
+## Agent Prompt
 
-`task.md` is written for the agent. It should include:
+Agent instructions are versioned package artifacts, not files copied into
+`.workspace` by default.
+
+The package prompt should include:
 
 - the goal of the run
 - paths to the current AST, previous AST, diff, and interpretation file
 - instructions to update `interpretation.yml`
 - instructions to ask the human for clarification when needed
 - instructions to run validation and fix errors
-- instructions to write `output/status.json`
+- instructions to write `run.json`
 
-The task should explicitly tell the agent that the AST is the interpretation
+The prompt should explicitly tell the agent that the AST is the interpretation
 input contract and that raw `.spec` text is only source context.
 
-## Status File
+`session.json` records which prompt applies to the session. Prompt versions are
+content hashes represented as strings:
 
-`output/status.json` records the current lifecycle state.
+```json
+{
+  "protocolVersion": 1,
+  "sessionId": "2026-05-30T10-00-00-000Z",
+  "specPath": "examples/shopping-basket/shopping-basket.spec",
+  "interpretationPath": "examples/shopping-basket/interpretation.yml",
+  "agentPrompt": {
+    "path": "packages/workflow/prompts/agent-session.md",
+    "version": "sha256:..."
+  }
+}
+```
+
+If a package prompt changes, the next session can naturally reference the new
+hash. The runner may later archive prompt text for debugging or auditability,
+but the MVP should keep `.workspace` as generated run state rather than a second
+source of truth for prompts.
+
+## Run Status File
+
+`run.json` records the current lifecycle state, sequence, paths, and hashes.
 
 Expected statuses:
 
@@ -213,8 +240,10 @@ Example:
 
 ```json
 {
+  "sequence": 4,
   "status": "ready",
   "message": "interpretation.yml validates and is ready for final workflow checks",
+  "interpretationPath": "examples/shopping-basket/interpretation.yml",
   "updatedAt": "2026-05-28T12:00:00.000Z"
 }
 ```
@@ -223,6 +252,7 @@ If the agent needs clarification, it should use:
 
 ```json
 {
+  "sequence": 4,
   "status": "needs-clarification",
   "message": "The changed clause could be either an event payload or a guard.",
   "questions": [
@@ -234,7 +264,7 @@ If the agent needs clarification, it should use:
 
 ## AST Diff Packet
 
-`input/ast.diff.json` should be structured for both tools and agents.
+`ast.diff.json` should be structured for both tools and agents.
 
 Suggested shape:
 
@@ -243,11 +273,11 @@ Suggested shape:
   "kind": "spec-ast-diff",
   "version": 1,
   "previous": {
-    "path": "input/previous.ast.json",
+    "path": "baseline.ast.json",
     "hash": "..."
   },
   "current": {
-    "path": "input/current.ast.json",
+    "path": "current.ast.json",
     "hash": "..."
   },
   "blocks": {
@@ -278,7 +308,7 @@ Required checkpoint:
 parse succeeded
 agent marked run ready
 runner final validation passed
-XState-compatible config was generated
+XState-backed executable state-model config was generated
 XState inspection loaded successfully
 ```
 

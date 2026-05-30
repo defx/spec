@@ -8,20 +8,19 @@ Proposed
 
 Spec now has three distinct layers:
 
-* the parser, which turns `.spec` files into canonical AST JSON
-* the interpretation layer, where an agent and human reviewer turn parser output
-  into `interpretation.yml`
-* the interpreter, which validates reviewed interpretation documents and
-  projects them into XState-compatible machine configuration
+* the parser layer, which turns `.spec` files into canonical AST JSON and does
+  not infer domain meaning from natural-language clauses
+* the interpretation layer, where an agent and human reviewer make semantic
+  modelling decisions and record them in `interpretation.yml`
+* the execution tooling layer, which mechanically validates reviewed
+  interpretation documents, projects them into executable state-model
+  configuration, executes the projected model, and later may run generated tests
 
-The current interpretation workflow is agent-led, but some responsibilities are
-mechanical and should not depend on a specific agent implementation. Parsing,
-AST snapshot management, AST diffing, interpretation validation, state-machine
-projection, and final execution checks are deterministic workflow concerns.
+Parsing, AST snapshot management, AST diffing, interpretation validation, executable
+model projection, and final execution checks are deterministic workflow
+concerns. Interpretation workflow is a Human-in-the-loop process, and is designed specifically to be agent-agnostic.
 
-Semantic interpretation remains different. The parser intentionally preserves
-clause text as opaque natural language. Deciding whether a phrase is a state,
-context value, event, guard, effect, invariant, ambiguity, or ordinary wording
+The parser intentionally preserves clause text as opaque natural language. Deciding whether a phrase is a state, context value, event, guard, effect, invariant, ambiguity, or ordinary wording
 requires modelling judgment. That work is well-suited to an agent, with human
 clarification where the specification is ambiguous or inconsistent.
 
@@ -42,8 +41,8 @@ The workflow runner owns mechanical orchestration:
 * produce an AST diff/change packet
 * maintain a file-based workflow session workspace for an agent
 * run deterministic validation after the agent updates `interpretation.yml`
-* project the validated interpretation into XState-compatible machine config
-* execute or refresh a basic XState inspection surface
+* project the validated interpretation into executable state-model config
+* execute or refresh a basic inspection surface using the configured runtime
 * advance the stored AST baseline only after the run reaches a coherent
   checkpoint
 
@@ -59,10 +58,14 @@ The runner remains the final deterministic authority. Even if the agent runs
 validation itself, the runner must validate again before projection, execution,
 and baseline advancement.
 
-The workflow should be agent-agnostic. The contract between runner and agent is
+The workflow runner should itself be implemented as a finite state machine. The
+runner lifecycle is operational and bounded: parse, diff, wait for agent input,
+handle clarification, validate, project, execute, complete, fail, or mark stale.
+Representing that lifecycle explicitly should make resumability, status
+reporting, baseline advancement, and failure handling easier to reason about.
+
+The workflow is agent-agnostic. The contract between runner and agent is
 a file-based job protocol, not a direct dependency on a specific agent API.
-Watching a file or directory may be one way an agent discovers work, but the
-protocol itself is the workflow session workspace and its files.
 
 The initial workflow is:
 
@@ -76,9 +79,9 @@ The initial workflow is:
 7. Agent asks for human clarification when needed
 8. Agent runs validation and fixes YAML or model-reference errors
 9. Agent marks the run ready
-10. Runner performs final validation
-11. Runner projects to XState-compatible machine config
-12. Runner executes or refreshes basic XState inspection
+10. Runner performs final YAML validation
+11. Runner projects to executable state-model config
+12. Runner executes or refreshes basic runtime inspection
 13. Runner advances the previous AST baseline
 ```
 
@@ -91,30 +94,48 @@ run by default.
 The exact layout may evolve, but the MVP should use a shape like:
 
 ```text
-.defx/
-  workflow/
-    session.md
-    session.json
-    baseline.ast.json
-    current.ast.json
-    ast.diff.json
-    run.json
-    validation.log
-    machine.config.json
-    machine.inspection.json
-    history/
-      runs.jsonl
+.workspace/
+  session.json
+  baseline.ast.json
+  current.ast.json
+  ast.diff.json
+  run.json
+  validation.log
+  machine.config.json
+  machine.inspection.json
+  history/
+    runs.jsonl
 ```
 
-`session.md` describes the stable agent task for the current session. It should
-instruct the agent to update canonical `interpretation.yml`, ask for
-clarification when necessary, run validation while editing, and mark the current
-run status. The task should not be rewritten for every run unless the human
-starts a new workflow session or changes the agent instructions.
+Agent instructions should be versioned package artifacts, not copied into
+`.workspace` by default. The workspace is generated run state; it should not
+become a second source of truth for prompts.
 
 `session.json` records session metadata such as protocol version, session id,
-configured `.spec` path, configured `interpretation.yml` path, and optional
-agent-facing notes.
+configured `.spec` path, configured `interpretation.yml` path, and a reference
+to the agent prompt that should be used for the session. Prompt versions should
+be content hashes, represented as strings.
+
+For example:
+
+```json
+{
+  "protocolVersion": 1,
+  "sessionId": "2026-05-30T10-00-00-000Z",
+  "specPath": "examples/shopping-basket/shopping-basket.spec",
+  "interpretationPath": "examples/shopping-basket/interpretation.yml",
+  "agentPrompt": {
+    "path": "packages/workflow/prompts/agent-session.md",
+    "version": "sha256:..."
+  }
+}
+```
+
+If a new agent starts or an existing agent resumes, it reads the prompt
+referenced by `session.json`. If the package prompt changes, the next session
+can naturally use the new prompt hash. Prompt text may be copied into archived
+run artifacts later for debugging or auditability, but that should not be the
+MVP default.
 
 `baseline.ast.json` is the last coherent accepted AST. `current.ast.json` is the
 latest parsed AST.
@@ -181,15 +202,27 @@ The agent should not be limited to changed lines only. A small source change may
 affect events, transitions, guards, invariants, ambiguity notes, or multiple
 model elements that share source references.
 
-## XState Execution
+## Executable Model Projection
 
-The workflow should not implement a custom state-machine runtime.
+The workflow should not implement a custom user-spec runtime.
 
-The interpreter projects `interpretation.yml` into an XState-compatible machine
-configuration. The workflow runner should use XState for execution and basic
-inspection. MVP inspection can be modest: initial state and context, available
-events, simple stepping, and enough output for a human to confirm that the
-projected machine is usable.
+The user's spec should project into an executable, predictable state model. That
+model may include finite modes, but it should not be conceptually limited to a
+strict finite state machine. Many useful specifications may be closer to a
+Redux-like or Zustand-like state container: events, context, guards,
+assignments, effects, and invariants, with little or no meaningful finite-mode
+surface.
+
+XState remains the first runtime target because its architecture can represent
+statecharts while also supporting flexible state-model patterns built around
+context, events, guards, actions, and predictable updates. The workflow runner
+should use XState for MVP execution and basic inspection, but the workflow
+language should not imply that XState projection is limited to finite state
+machines.
+
+MVP inspection can be modest: initial state and context, available events,
+state or context metadata, transition metadata, simple stepping where supported,
+and enough output for a human to confirm that the projected model is usable.
 
 ## Baseline Advancement
 
@@ -197,12 +230,60 @@ The stored previous AST snapshot should advance only after:
 
 * parsing succeeds
 * the interpretation validates under the runner's final validation pass
-* XState-compatible machine config generation succeeds
-* the machine can be loaded for basic execution or inspection
+* executable state-model config generation succeeds
+* the projected model can be loaded for basic execution or inspection
 
 If the agent needs clarification, validation fails, projection fails, or the
 human edits source files during a run, the runner should keep the previous
 baseline and mark the run pending, failed, or stale.
+
+## Runner Lifecycle Machine
+
+The runner's own lifecycle should be modelled as a finite state machine.
+
+The initial state set should stay small and operational:
+
+```text
+idle
+session-ready
+parsing
+diffing
+waiting-for-agent
+needs-clarification
+agent-ready
+validating
+projecting
+executing
+completed
+failed
+stale
+```
+
+The initial event set should reflect external and deterministic workflow
+changes:
+
+```text
+RUN_REQUESTED
+PARSE_SUCCEEDED
+PARSE_FAILED
+DIFF_SUCCEEDED
+DIFF_FAILED
+AGENT_MARKED_READY
+AGENT_NEEDS_CLARIFICATION
+VALIDATION_SUCCEEDED
+VALIDATION_FAILED
+PROJECTION_SUCCEEDED
+PROJECTION_FAILED
+EXECUTION_SUCCEEDED
+EXECUTION_FAILED
+SOURCE_CHANGED_DURING_RUN
+BASELINE_ADVANCED
+```
+
+The runner lifecycle machine is implementation machinery. It should remain
+separate from the executable state model projected from a user's `.spec` file.
+Using an FSM to implement the runner does not imply that user specifications or
+XState-backed projections are limited to strictly finite-state models.
 
 ## Rationale
 
@@ -218,15 +299,24 @@ projection. It does not orchestrate agent work or workflow state.
 The workflow runner depends on both layers and coordinates the end-to-end
 process.
 
+### Makes workflow state explicit
+
+The runner has a naturally finite operational lifecycle. Implementing that
+lifecycle as a finite state machine gives the workflow a clear status model for
+`run.json`, makes resume behaviour easier to design, and reduces the risk of
+advancing baselines or reading outputs from the wrong phase.
+
 ### Preserves agent portability
 
 A file-based job protocol lets different agents participate without adapting
 the runner to a specific API, SDK, or product. Any agent that can read files,
 edit `interpretation.yml`, run validation, and write status can participate.
 
-Keeping instructions in a session-level file also supports the expected common
-case: one agent handles many runs within a session, and only rereads the stable
-task when the session changes.
+Keeping instructions as package-level prompt artifacts also supports the
+expected common case: one agent handles many runs within a session, and only
+rereads the stable task when the session changes. The workspace records the
+prompt path and content hash used for the session, rather than copying prompt
+text into generated run state.
 
 ### Lets the agent focus on meaning
 
@@ -239,6 +329,14 @@ The agent should run validation as part of its own edit loop, but final
 validation belongs to the runner. This prevents the agent from being the sole
 authority on whether its own output is valid.
 
+### Avoids narrowing user projections too early
+
+The workflow runner can use a finite state machine internally without requiring
+every user specification to be modelled as a strict finite state machine.
+Describing the projection target as an executable state model keeps room for
+statechart-like, reducer-like, and store-like projections, including those
+implemented with XState.
+
 ## Consequences
 
 ### Positive
@@ -246,7 +344,10 @@ authority on whether its own output is valid.
 * The end-to-end process can be proven manually before adding file watching.
 * The workflow remains independent of any single agent implementation.
 * AST diffs reduce the amount of unchanged parser output the agent must review.
-* Validation and XState execution become repeatable runner responsibilities.
+* Validation and executable-model inspection become repeatable runner
+  responsibilities.
+* The runner lifecycle has an explicit finite-state model for status, resume,
+  and failure handling.
 * The parser and interpreter packages stay focused.
 
 ### Trade-offs
@@ -259,6 +360,8 @@ authority on whether its own output is valid.
 * The workflow runner introduces another package boundary.
 * Compact current-run state is less auditable than preserving every run artifact
   forever, so explicit history and archive policies may be needed later.
+* The current interpreter and schema still emphasize statechart vocabulary, so
+  future broader state-container projections may require schema evolution.
 
 ## Guardrails
 
@@ -267,6 +370,10 @@ authority on whether its own output is valid.
 * Do not put workflow orchestration in the parser package.
 * Do not make the runner depend on a specific agent API.
 * Do not let the agent be the final validation authority.
-* Use XState for state-machine execution rather than building a custom runtime.
+* Implement the runner lifecycle as an explicit finite state machine.
+* Use XState as the first user-spec execution target rather than building a
+  custom runtime.
+* Do not imply that user specs or XState projections are limited to strictly
+  finite state machines.
 * Advance the AST baseline only after validation, projection, and execution
   checks pass.
