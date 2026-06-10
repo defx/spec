@@ -40,7 +40,7 @@ export type SpecAst = {
   version: 1;
   grammar: {
     name: "spec";
-    version: 1;
+    version: 2;
   };
   source: {
     path: string | null;

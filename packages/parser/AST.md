@@ -12,7 +12,7 @@ type SpecAst = {
   version: 1;
   grammar: {
     name: "spec";
-    version: 1;
+    version: 2;
   };
   source: {
     path: string | null;
@@ -54,10 +54,10 @@ type SourceSpan = {
   line endings.
 - `title` contains the scenario title text after `Scenario:` and required
   whitespace.
-- Clause `keyword` preserves the authored keyword.
+- Clause `keyword` records the canonical structural keyword. Authored keyword
+  casing is accepted case-insensitively but normalized in the AST.
 - Clause `phase` records the structural section that owns the clause. This is
-  especially useful for `And` clauses, whose authored keyword is intentionally
-  preserved while their phase is determined by placement.
+  especially useful for `And` clauses, whose phase is determined by placement.
 - Clause `text` is opaque natural-language text. The parser does not infer
   entities, attributes, guards, effects, or other domain structures.
 - Clause spans cover the full clause line, including the keyword and separating

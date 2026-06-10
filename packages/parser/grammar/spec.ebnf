@@ -7,6 +7,8 @@ spec-file =
     { empty-line, block },
     [ line-end ] ;
 
+(* Structural keyword literals are matched case-insensitively. *)
+
 (* A blank line is a full empty line. *)
 empty-line = line-end, line-end ;
 

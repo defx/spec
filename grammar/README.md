@@ -14,6 +14,9 @@ Scenarios may include an optional `Scenario:` title and are written using:
 2. `When` for an event
 3. `Then` for resulting properties
 
+Structural keywords are case-insensitive, so `given`, `WHEN`, and `Then`
+are equivalent.
+
 The grammar currently supports three structural shapes:
 
 1. `Given / When / Then`

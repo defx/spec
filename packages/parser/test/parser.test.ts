@@ -118,6 +118,34 @@ Then results are shown
     });
   });
 
+  it("parses structural keywords case-insensitively", () => {
+    const ast = parseSpec(`scenario: Toggle playback
+
+given that playback is paused
+wHeN the play button is pressed
+THEN playback is playing
+
+GIVEN that playback is playing
+when the pause button is pressed
+then playback is paused
+and playback position is retained
+`);
+
+    assert.equal(ast.blocks.length, 2);
+    assert.equal(ast.blocks[0]?.title, "Toggle playback");
+    assert.equal(ast.blocks[0]?.given[0]?.keyword, "Given");
+    assert.equal(ast.blocks[0]?.when[0]?.keyword, "When");
+    assert.equal(ast.blocks[0]?.then[0]?.keyword, "Then");
+    assert.deepEqual(
+      ast.blocks[1]?.then.map((clause) => clause.keyword),
+      ["Then", "And"]
+    );
+    assert.deepEqual(
+      ast.blocks.map((block) => block.shape),
+      ["given-when-then", "given-when-then"]
+    );
+  });
+
   it("reports line and column for invalid syntax", () => {
     assert.throws(
       () => parseSpec("Given basket is empty\nWhen user checks out\n", { path: "bad.spec" }),

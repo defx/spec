@@ -10,6 +10,7 @@
     "moduleResolution": "NodeNext",
     "noUncheckedIndexedAccess": true,
     "outDir": "dist",
+    "rootDir": "src",
     "strict": true,
     "target": "ES2024",
     "types": [
@@ -17,7 +18,6 @@
     ],
   },
   "include": [
-    "src/**/*.ts",
-    "test/**/*.ts"
+    "src/**/*.ts"
   ]
 }

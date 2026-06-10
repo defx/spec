@@ -24,8 +24,8 @@ type ParsedClauseLine = {
   span: SourceSpan;
 };
 
-const CLAUSE_LINE_PATTERN = /^(Given|When|Then|And)([ \t]+)(.*)$/u;
-const TITLE_LINE_PATTERN = /^Scenario:([ \t]+)(.*)$/u;
+const CLAUSE_LINE_PATTERN = /^(given|when|then|and)([ \t]+)(.*)$/iu;
+const TITLE_LINE_PATTERN = /^scenario:([ \t]+)(.*)$/iu;
 
 export function parseSpec(source: string, options: ParseSpecOptions = {}): SpecAst {
   const parser = new Parser(source, options.path);
@@ -93,7 +93,7 @@ class Parser {
     }
 
     let title: string | null = null;
-    if (!this.isAtEnd() && this.current().text.startsWith("Scenario:")) {
+    if (!this.isAtEnd() && startsWithKeyword(this.current().text, "Scenario:")) {
       title = this.parseTitleLine();
       if (!this.isAtEnd() && this.currentIsBlank()) {
         this.index += 1;
@@ -240,12 +240,7 @@ class Parser {
       return null;
     }
 
-    const text = this.current().text;
-    if (text.startsWith("Given")) return "Given";
-    if (text.startsWith("When")) return "When";
-    if (text.startsWith("Then")) return "Then";
-    if (text.startsWith("And")) return "And";
-    return null;
+    return parseClauseKeyword(this.current().text);
   }
 
   private current(): SourceLine {
@@ -332,7 +327,12 @@ function parseClauseLine(line: SourceLine, phase: ClausePhase): ParsedClauseLine
     return null;
   }
 
-  const keyword = match[1] as ClauseKeyword;
+  const authoredKeyword = match[1] ?? "";
+  const keyword = normalizeClauseKeyword(authoredKeyword);
+  if (!keyword) {
+    return null;
+  }
+
   const separator = match[2] ?? "";
   const rawText = match[3] ?? "";
   const text = trimTrailingHorizontalWhitespace(rawText);
@@ -352,6 +352,30 @@ function parseClauseLine(line: SourceLine, phase: ClausePhase): ParsedClauseLine
       }
     }
   };
+}
+
+function startsWithKeyword(text: string, keyword: string): boolean {
+  return text.slice(0, keyword.length).toLocaleLowerCase("en-US") === keyword.toLocaleLowerCase("en-US");
+}
+
+function parseClauseKeyword(text: string): ClauseKeyword | null {
+  const match = /^(given|when|then|and)\b/iu.exec(text);
+  return match ? normalizeClauseKeyword(match[1] ?? "") : null;
+}
+
+function normalizeClauseKeyword(keyword: string): ClauseKeyword | null {
+  switch (keyword.toLocaleLowerCase("en-US")) {
+    case "given":
+      return "Given";
+    case "when":
+      return "When";
+    case "then":
+      return "Then";
+    case "and":
+      return "And";
+    default:
+      return null;
+  }
 }
 
 function isBlankLine(text: string): boolean {
