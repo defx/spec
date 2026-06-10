@@ -14,6 +14,8 @@ import {
   SPEC_GRAMMAR_VERSION,
   SpecParseError
 } from "../dist/index.js";
+import type { SpecAst } from "../dist/index.js";
+
 
 const execFileAsync = promisify(execFile);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -56,6 +58,7 @@ describe("parseSpec", () => {
     );
 
     const first = ast.blocks[0];
+    assert.ok(first)
     assert.equal(first.shape, "given-when-then");
     assert.equal(first.kind, "transition");
     assert.deepEqual(first.comments, []);
@@ -87,6 +90,7 @@ describe("parseSpec", () => {
     );
 
     const invariant = ast.blocks[9];
+    assert.ok(invariant)
     assert.equal(invariant.shape, "given-then");
     assert.equal(invariant.kind, "invariant");
     assert.equal(invariant.when.length, 0);
@@ -102,7 +106,7 @@ Then results are shown
 `, { path: "inline.spec" });
 
     assert.equal(ast.blocks.length, 1);
-    assert.deepEqual(ast.blocks[0].comments, ["# comment one", "  # comment two"]);
+    assert.deepEqual(ast.blocks[0]?.comments, ["# comment one", "  # comment two"]);
     assert.equal(ast.blocks[0].title, "Submit search");
     assert.equal(ast.blocks[0].shape, "when-then");
     assert.equal(ast.blocks[0].kind, "transition");
@@ -153,7 +157,7 @@ Then results are shown
   });
 });
 
-function assertShapeKindConsistency(ast) {
+function assertShapeKindConsistency(ast: SpecAst) {
   for (const block of ast.blocks) {
     assert.equal(block.kind, block.shape === "given-then" ? "invariant" : "transition");
 

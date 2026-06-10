@@ -27,10 +27,36 @@
     "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
     "dev:parse": "node --watch dist/cli.js parse",
     "parse": "node dist/cli.js parse",
-    "test": "npm run build && node --test test/*.test.mjs"
+    "test": "node --import tsx --test test/*.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "precommit": "lint-staged && npm run typecheck && npm run test:run",
+    "prepare": "husky",
+    "test:run": "npm test --"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^22.15.3",
-    "typescript": "^5.8.3"
+    "eslint": "^10.4.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
+    "prettier": "^3.8.3",
+    "tsx": "^4.22.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.60.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,cjs,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css,html}": [
+      "prettier --write"
+    ]
   }
 }
