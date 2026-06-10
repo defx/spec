@@ -36,7 +36,6 @@ class Parser {
   private readonly lines: SourceLine[];
   private readonly sourcePath?: string;
   private index = 0;
-  private nextBlockId = 1;
 
   constructor(source: string, sourcePath?: string) {
     this.lines = splitLines(source);
@@ -221,7 +220,7 @@ class Parser {
     }
 
     return {
-      id: `block-${this.nextBlockId++}`,
+      id: createBlockId(shape, given, when, then),
       title,
       comments,
       shape,
@@ -370,4 +369,30 @@ function trimTrailingHorizontalWhitespace(text: string): string {
 function firstNonWhitespaceColumn(text: string): number {
   const match = /[^ \t]/u.exec(text);
   return match ? match.index + 1 : 1;
+}
+
+function createBlockId(shape: BlockShape, given: ClauseNode[], when: ClauseNode[], then: ClauseNode[]): string {
+  const signature = JSON.stringify({
+    shape,
+    given: clausesForId(given),
+    when: clausesForId(when),
+    then: clausesForId(then)
+  });
+
+  return `block-${hashString(signature)}`;
+}
+
+function clausesForId(clauses: ClauseNode[]): Array<Pick<ClauseNode, "phase" | "text">> {
+  return clauses.map(({ phase, text }) => ({ phase, text }));
+}
+
+function hashString(value: string): string {
+  let hash = 0x811c9dc5;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+
+  return hash.toString(36);
 }
