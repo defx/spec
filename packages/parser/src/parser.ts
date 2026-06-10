@@ -36,6 +36,7 @@ class Parser {
   private readonly lines: SourceLine[];
   private readonly sourcePath?: string;
   private index = 0;
+  private nextBlockId = 1;
 
   constructor(source: string, sourcePath?: string) {
     this.lines = splitLines(source);
@@ -220,6 +221,7 @@ class Parser {
     }
 
     return {
+      id: `block-${this.nextBlockId++}`,
       title,
       comments,
       shape,

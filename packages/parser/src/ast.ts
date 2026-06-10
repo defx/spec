@@ -24,6 +24,7 @@ export type BlockShape = "given-when-then" | "when-then" | "given-then";
 export type BlockKind = "transition" | "invariant";
 
 export type BlockNode = {
+  id: string;
   title: string | null;
   comments: string[];
   shape: BlockShape;
