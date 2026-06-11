@@ -7,6 +7,6 @@ export type SpecDiff = {
 export function diffSpec(nextAst: SpecAst, idCache: string[] = [], previousAst?: SpecAst): SpecDiff {
     // ...
     return {
-        blocks: {}
+        blocks: Object.fromEntries(nextAst.blocks.map((block) => [block.id, block]))
     }
 }
