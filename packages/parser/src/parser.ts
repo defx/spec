@@ -24,8 +24,8 @@ type ParsedClauseLine = {
   span: SourceSpan;
 };
 
-const CLAUSE_LINE_PATTERN = /^(given|when|then|and)([ \t]+)(.*)$/iu;
-const TITLE_LINE_PATTERN = /^scenario:([ \t]+)(.*)$/iu;
+const CLAUSE_LINE_PATTERN = /^([ \t]*)(given|when|then|and)([ \t]+)(.*)$/iu;
+const TITLE_LINE_PATTERN = /^[ \t]*scenario:([ \t]+)(.*)$/iu;
 
 export function parseSpec(source: string, options: ParseSpecOptions = {}): SpecAst {
   const parser = new Parser(source, options.path);
@@ -327,14 +327,15 @@ function parseClauseLine(line: SourceLine, phase: ClausePhase): ParsedClauseLine
     return null;
   }
 
-  const authoredKeyword = match[1] ?? "";
+  const indentation = match[1] ?? "";
+  const authoredKeyword = match[2] ?? "";
   const keyword = normalizeClauseKeyword(authoredKeyword);
   if (!keyword) {
     return null;
   }
 
-  const separator = match[2] ?? "";
-  const rawText = match[3] ?? "";
+  const separator = match[3] ?? "";
+  const rawText = match[4] ?? "";
   const text = trimTrailingHorizontalWhitespace(rawText);
 
   return {
@@ -344,22 +345,23 @@ function parseClauseLine(line: SourceLine, phase: ClausePhase): ParsedClauseLine
     span: {
       start: {
         line: line.number,
-        column: 1
+        column: indentation.length + 1
       },
       end: {
         line: line.number,
-        column: keyword.length + separator.length + text.length + 1
+        column: indentation.length + keyword.length + separator.length + text.length + 1
       }
     }
   };
 }
 
 function startsWithKeyword(text: string, keyword: string): boolean {
-  return text.slice(0, keyword.length).toLocaleLowerCase("en-US") === keyword.toLocaleLowerCase("en-US");
+  const trimmed = text.trimStart();
+  return trimmed.slice(0, keyword.length).toLocaleLowerCase("en-US") === keyword.toLocaleLowerCase("en-US");
 }
 
 function parseClauseKeyword(text: string): ClauseKeyword | null {
-  const match = /^(given|when|then|and)\b/iu.exec(text);
+  const match = /^[ \t]*(given|when|then|and)\b/iu.exec(text);
   return match ? normalizeClauseKeyword(match[1] ?? "") : null;
 }
 
