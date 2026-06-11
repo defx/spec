@@ -191,6 +191,14 @@ and playback position is retained
         `)
         assert.equal(ast.blocks.length, 1);
   })
+  it("accepts a leading new line", () => {
+        const ast = parseSpec(`
+          given that playback is playing
+          when the pause button is pressed
+          then playback is paused
+        `)
+        assert.equal(ast.blocks.length, 1);
+  })
 });
 
 function assertShapeKindConsistency(ast: SpecAst) {
