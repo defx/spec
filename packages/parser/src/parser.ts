@@ -48,6 +48,7 @@ class Parser {
     }
 
     const blocks: BlockNode[] = [];
+    this.skipBlankLines();
 
     while (!this.isAtEnd()) {
       if (this.currentIsBlank()) {
@@ -64,9 +65,7 @@ class Parser {
         this.failCurrent("Expected a blank line between spec blocks.");
       }
 
-      while (!this.isAtEnd() && this.currentIsBlank()) {
-        this.index += 1;
-      }
+      this.skipBlankLines();
     }
 
     return {
@@ -253,6 +252,12 @@ class Parser {
 
   private currentIsBlank(): boolean {
     return isBlankLine(this.current().text);
+  }
+
+  private skipBlankLines(): void {
+    while (!this.isAtEnd() && this.currentIsBlank()) {
+      this.index += 1;
+    }
   }
 
   private currentPosition(): SourcePosition {
