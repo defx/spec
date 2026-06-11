@@ -1,0 +1,41 @@
+{
+  "name": "diff",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "precommit": "lint-staged && npm run typecheck && npm run test:run",
+    "prepare": "husky",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "eslint": "^10.4.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3",
+    "@eslint/js": "^10.0.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.6.0",
+    "typescript-eslint": "^8.60.0",
+    "@vitest/coverage-v8": "^4.1.8",
+    "vitest": "^4.1.8"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,cjs,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css,html}": [
+      "prettier --write"
+    ]
+  }
+}
