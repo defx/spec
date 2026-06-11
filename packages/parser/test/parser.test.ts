@@ -183,6 +183,14 @@ and playback position is retained
       /3:1: Expected a blank line after spec block\./
     );
   });
+
+  it("accepts indented spec text", () => {
+        const ast = parseSpec(`given that playback is playing
+            when the pause button is pressed
+            then playback is paused
+        `)
+        assert.equal(ast.blocks.length, 1);
+  })
 });
 
 function assertShapeKindConsistency(ast: SpecAst) {
