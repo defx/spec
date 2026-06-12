@@ -14,19 +14,22 @@
     "prepare": "husky",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "diff": "node --import tsx src/cli.ts"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.9.3",
+    "@vitest/coverage-v8": "^4.1.8",
     "eslint": "^10.4.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.6.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
     "prettier": "^3.8.3",
+    "tsx": "^4.22.4",
     "typescript": "^6.0.3",
-    "@eslint/js": "^10.0.1",
-    "eslint-config-prettier": "^10.1.8",
-    "globals": "^17.6.0",
     "typescript-eslint": "^8.60.0",
-    "@vitest/coverage-v8": "^4.1.8",
     "vitest": "^4.1.8"
   },
   "lint-staged": {
@@ -37,5 +40,8 @@
     "*.{json,md,yml,yaml,css,html}": [
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "commander": "^15.0.0"
   }
 }

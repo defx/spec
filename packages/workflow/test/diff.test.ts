@@ -46,5 +46,3 @@ describe("diffSpec", () => {
         expect(diff.blocks[id]).toEqual(nextAST.blocks[0])
     })
 })
-
-//it("", () => {})
