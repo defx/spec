@@ -1,4 +1,4 @@
-import { describe, test, expect, afterAll } from "vitest"
+import { describe, test, expect, afterEach } from "vitest"
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { dirname, resolve } from "node:path";
@@ -16,7 +16,7 @@ describe("diff:CLI", () => {
 
 const fixturePath = resolve("./diff.fixture.spec");
 
-afterAll(async () => {
+afterEach(async () => {
     try {
         await rm(fixturePath)
     } catch(e) {
@@ -52,7 +52,9 @@ test("prints pretty JSON to stdout", async () => {
     expect(Object.keys(output.blocks).length).toBe(1)
 })
 
-// test("persists the last AST to disk")
+test("persists the last AST to disk", () => {
+
+})
 
 // test("")
 
