@@ -14,14 +14,16 @@ program
 
 async function main(): Promise<number> {
     program.parse();
+
     const options = program.opts()
     const [path] = program.args as [string] // "<path>" ensures commander will error if not defined, but commander isn't ts-first
+    const specSource = await readFile(path, "utf8")
+    const nextAst = parseSpec(specSource)
+    const json = JSON.stringify(nextAst, null, options.pretty ? 2 : 0)
+    const output = options.pretty ? `${json}\n` : json
 
-    console.log({ options, path})
-
-    // const specSource = await readFile(path, "utf8")
-    // const nextAst = parseSpec(specSource)
-    // ...
+    process.stdout.write(output)
+    
     return 0
 }
 
