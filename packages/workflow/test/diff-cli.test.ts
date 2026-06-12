@@ -16,10 +16,12 @@ const cliPath = resolve(__dirname, "../src/cli.ts");
 describe("diff:CLI", () => {
 
     const fixturePath = ("./diff.fixture.spec");
+    const cachePath = `.spec/cache/${fixturePath}.json`
 
     afterEach(async () => {
         try {
             await rm(fixturePath)
+            await rm(cachePath)
         } catch (e) {
             console.error(e)
         }
@@ -47,7 +49,7 @@ describe("diff:CLI", () => {
         const { stdout } = await execFileAsync(process.execPath, ["--import", "tsx", cliPath, fixturePath, "--pretty"]);
         const output = JSON.parse(stdout);
 
-        // console.log(stdout)
+        console.log(stdout)
 
         expect(stdout.endsWith("\n")).toBeTruthy()
         expect(Object.keys(output.blocks).length).toBe(1)
@@ -64,7 +66,7 @@ describe("diff:CLI", () => {
         // exec command
         await execFileAsync(process.execPath, ["--import", "tsx", cliPath, fixturePath, "--pretty"]);
         // check for persisted copy
-        let cachedAst = await readFile(`.spec/cache/${fixturePath}`, "utf8")
+        let cachedAst = await readFile(cachePath, "utf8")
         let json = JSON.parse(cachedAst)
 
         expect(json.blocks.length).toBe(1)
@@ -83,7 +85,7 @@ describe("diff:CLI", () => {
         await execFileAsync(process.execPath, ["--import", "tsx", cliPath, fixturePath, "--pretty"]);
         
         // check that cache file matches the last run
-        cachedAst = await readFile(`.spec/cache/${fixturePath}`, "utf8")
+        cachedAst = await readFile(cachePath, "utf8")
         json = JSON.parse(cachedAst)
 
         expect(json.blocks.length).toBe(2)

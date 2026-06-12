@@ -6,17 +6,6 @@ import { Command } from "commander";
 import { parseSpec } from "@defx/spec-parser"
 import { diffSpec } from "./diff.js";
 
-
-function cachePath(filePath: string): string {
-  const parsed = path.parse(filePath);
-
-  return path.format({
-    ...parsed,
-    base: "", // important: otherwise `base` overrides `name` + `ext`
-    name: `.spec/cache/${parsed.name}`,
-  });
-}
-
 const program = new Command();
 
 program
@@ -29,18 +18,32 @@ async function main(): Promise<number> {
     program.parse();
 
     const options = program.opts()
-    const [path] = program.args as [string] // "<path>" ensures commander will error if not defined, but commander isn't ts-first
-    const specSource = await readFile(path, "utf8")
+    const [filepath] = program.args as [string] // "<path>" ensures commander will error if not defined, but commander isn't ts-first
+    const specSource = await readFile(filepath, "utf8")
     const nextAst = parseSpec(specSource)
-    const json = JSON.stringify(nextAst, null, options.pretty ? 2 : 0)
-    const output = options.pretty ? `${json}\n` : json
+    const cachePath = `.spec/cache/${path.basename(filepath)}.json`
+    let previousAst
+
+    
 
     // check cache
-    // diff
+    try{
+        previousAst = await readFile(cachePath, "utf8").then(str => JSON.parse(str))
+    } catch (e: unknown) {
+        if(e instanceof Error && "code" in e && e.code === "ENOENT") {
+            
+        }else {
+            console.error(e)
+        }
+    }
 
+    // diff
+    const diff = diffSpec(nextAst, previousAst)
+    const json = JSON.stringify(diff, null, options.pretty ? 2 : 0)
+    const output = options.pretty ? `${json}\n` : json
     // update cache
     await ensureDir(".spec/cache")
-    await writeFile(cachePath(path), JSON.stringify(nextAst))
+    await writeFile(cachePath, JSON.stringify(nextAst))
 
     process.stdout.write(output)
 
